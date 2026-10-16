@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest'
-import { parseStudentName } from './roster'
+import { beforeEach, describe, it, expect } from 'vitest'
+import { parseStudentName, getRoster, getActiveRoster, saveRoster, ROSTER_STORAGE_KEY, type Student } from './roster'
 
 describe('parseStudentName', () => {
   it('splits a simple LASTNAME Firstname', () => {
@@ -36,5 +36,46 @@ describe('parseStudentName', () => {
 
   it('returns empty strings for empty input', () => {
     expect(parseStudentName('   ')).toEqual({ lastName: '', firstName: '' })
+  })
+})
+
+function student(id: string, over: Partial<Student> = {}): Student {
+  return { id, lastName: 'X', firstName: 'Y', speciality: '1MAUT', active: true, ...over }
+}
+
+describe('roster storage', () => {
+  beforeEach(() => localStorage.clear())
+
+  it('falls back to the seed JSON when no override exists', () => {
+    const seeded = getRoster('1MAUT')
+    expect(seeded.length).toBe(21)
+    expect(seeded.every(s => s.speciality === '1MAUT')).toBe(true)
+    expect(seeded.every(s => s.active === true)).toBe(true)
+  })
+
+  it('reads the stored override in preference to the seed', () => {
+    saveRoster('1MAUT', [student('A1')])
+    expect(getRoster('1MAUT').map(s => s.id)).toEqual(['A1'])
+  })
+
+  it('isolates specialities from one another', () => {
+    saveRoster('1MAUT', [student('A1')])
+    expect(getRoster('1MESE').length).toBe(19)
+  })
+
+  it('excludes inactive students from the active roster but keeps them in the full roster', () => {
+    saveRoster('1MAUT', [student('A1'), student('A2', { active: false })])
+    expect(getActiveRoster('1MAUT').map(s => s.id)).toEqual(['A1'])
+    expect(getRoster('1MAUT').map(s => s.id)).toEqual(['A1', 'A2'])
+  })
+
+  it('survives corrupt stored JSON by returning the seed', () => {
+    localStorage.setItem(ROSTER_STORAGE_KEY, '{not json')
+    expect(getRoster('1MAUT').length).toBe(21)
+  })
+
+  it('ignores a stored value of the wrong shape', () => {
+    localStorage.setItem(ROSTER_STORAGE_KEY, JSON.stringify({ '1MAUT': 'nope' }))
+    expect(getRoster('1MAUT').length).toBe(21)
   })
 })
