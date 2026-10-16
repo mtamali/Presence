@@ -1,17 +1,4 @@
-import { students, type Speciality } from './model'
-
-export type ImportedEmail = {
-  studentId: string
-  studentName: string
-  speciality: Speciality
-  email: string
-}
-
-export type ImportPreview = {
-  matches: ImportedEmail[]
-  issues: { name: string; reason: string }[]
-  totalRows: number
-}
+import { parseStudentName, type Speciality, type Student } from './roster'
 
 function normalized(value: string) {
   return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]/g, '')
@@ -53,61 +40,110 @@ function parseDelimited(text: string): string[][] {
   return rows
 }
 
-export function previewClassroomImport(text: string): ImportPreview {
+export type RosterImportPreview = {
+  added: Student[]
+  updated: Student[]
+  deactivated: Student[]
+  issues: { name: string; reason: string }[]
+  totalRows: number
+  unchanged: Student[]
+}
+
+const ID_ALIASES = ['studentid', 'matricule', 'studentnumber', 'numeroinscription', 'id']
+const NAME_ALIASES = ['name', 'fullname', 'studentname', 'nom', 'nomcomplet', 'nomdeleleve']
+const EMAIL_ALIASES = ['email', 'emailaddress', 'studentemail', 'courriel', 'adresseemail', 'adressemail']
+
+export function previewRosterImport(text: string, speciality: Speciality, currentRoster: Student[]): RosterImportPreview {
   const rows = parseDelimited(text.replace(/^\uFEFF/, ''))
   if (!rows.length) throw new Error('The file is empty.')
+
   const headers = rows[0]
-  const emailIndex = headerIndex(headers, ['email', 'emailaddress', 'studentemail', 'courriel', 'adresseemail', 'adressemail'])
-  const firstIndex = headerIndex(headers, ['firstname', 'givenname', 'prenom'])
-  const lastIndex = headerIndex(headers, ['lastname', 'familyname', 'surname', 'nom', 'nomdefamille'])
-  const fullIndex = headerIndex(headers, ['name', 'fullname', 'studentname', 'nomcomplet', 'nomdeleleve'])
-  const matriculeIndex = headerIndex(headers, ['matricule', 'studentid', 'studentnumber', 'numeroinscription'])
-  if (emailIndex < 0) throw new Error('The file needs an Email column.')
-  if (fullIndex < 0 && (firstIndex < 0 || lastIndex < 0) && matriculeIndex < 0) {
-    throw new Error('The file needs Name, First name and Last name, or Matricule columns.')
-  }
+  const idIndex = headerIndex(headers, ID_ALIASES)
+  const nameIndex = headerIndex(headers, NAME_ALIASES)
+  const emailIndex = headerIndex(headers, EMAIL_ALIASES)
+  if (idIndex < 0) throw new Error('The file needs a Student ID column.')
+  if (nameIndex < 0) throw new Error('The file needs a Name column.')
 
-  const candidates: ImportedEmail[] = []
-  const issues: ImportPreview['issues'] = []
+  const existing = new Map(currentRoster.map(student => [student.id, student]))
   const dataRows = rows.slice(1)
+  const issues: RosterImportPreview['issues'] = []
+
+  type Candidate = { id: string; lastName: string; firstName: string; email?: string }
+  const candidates: Candidate[] = []
+
   for (const row of dataRows) {
-    const email = (row[emailIndex] || '').trim().toLowerCase()
-    const first = firstIndex >= 0 ? (row[firstIndex] || '').trim() : ''
-    const last = lastIndex >= 0 ? (row[lastIndex] || '').trim() : ''
-    const full = fullIndex >= 0 ? (row[fullIndex] || '').trim() : ''
-    const matricule = matriculeIndex >= 0 ? (row[matriculeIndex] || '').trim() : ''
-    const name = full || `${first} ${last}`.trim() || matricule || 'Unnamed row'
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      issues.push({ name, reason: 'Missing or invalid email' })
-      continue
-    }
-    const keys = [normalized(full), normalized(`${first} ${last}`), normalized(`${last} ${first}`)].filter(Boolean)
-    const nameMatches = (student: (typeof students)[number]) =>
-      keys.includes(normalized(`${student.firstName} ${student.lastName}`)) ||
-      keys.includes(normalized(`${student.lastName} ${student.firstName}`))
-    const found = students.filter(student => matricule
-      ? student.matricule === matricule && (!keys.length || nameMatches(student))
-      : nameMatches(student))
-    if (found.length !== 1) {
-      const numberExists = matricule && students.some(student => student.matricule === matricule)
-      issues.push({ name, reason: found.length ? 'Multiple students match' : numberExists && keys.length ? 'Name and matricule do not match' : 'No matching student in the three specialities' })
-      continue
-    }
-    const student = found[0]
-    candidates.push({ studentId: student.id, studentName: `${student.lastName} ${student.firstName}`, speciality: student.speciality, email })
+    const id = (row[idIndex] || '').trim()
+    const rawName = (row[nameIndex] || '').trim()
+    const email = emailIndex >= 0 ? (row[emailIndex] || '').trim().toLowerCase() : ''
+    const label = rawName || id || 'Unnamed row'
+
+    if (!id) { issues.push({ name: label, reason: 'Missing Student ID' }); continue }
+    if (!rawName) { issues.push({ name: id, reason: 'Missing name' }); continue }
+
+    const { lastName, firstName } = parseStudentName(rawName)
+    const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+    if (!validEmail) issues.push({ name: label, reason: 'Missing or invalid email' })
+
+    candidates.push({ id, lastName, firstName, email: validEmail ? email : undefined })
   }
 
+  // Reject duplicates within the file outright rather than guessing.
   const idCounts = new Map<string, number>()
   const emailCounts = new Map<string, number>()
   for (const candidate of candidates) {
-    idCounts.set(candidate.studentId, (idCounts.get(candidate.studentId) || 0) + 1)
-    emailCounts.set(candidate.email, (emailCounts.get(candidate.email) || 0) + 1)
+    idCounts.set(candidate.id, (idCounts.get(candidate.id) || 0) + 1)
+    if (candidate.email) emailCounts.set(candidate.email, (emailCounts.get(candidate.email) || 0) + 1)
   }
-  const matches: ImportedEmail[] = []
+
+  const added: Student[] = []
+  const updated: Student[] = []
+  const seen = new Set<string>()
+
   for (const candidate of candidates) {
-    if (idCounts.get(candidate.studentId)! > 1 || emailCounts.get(candidate.email)! > 1) {
-      issues.push({ name: candidate.studentName, reason: 'Duplicate student or email in the file' })
-    } else matches.push(candidate)
+    if (idCounts.get(candidate.id)! > 1) {
+      issues.push({ name: candidate.id, reason: 'Duplicate Student ID in the file' })
+      continue
+    }
+    if (candidate.email && emailCounts.get(candidate.email)! > 1) {
+      issues.push({ name: candidate.id, reason: 'Duplicate email in the file' })
+      continue
+    }
+    seen.add(candidate.id)
+    const previous = existing.get(candidate.id)
+    const next: Student = {
+      id: candidate.id,
+      lastName: candidate.lastName,
+      firstName: candidate.firstName,
+      email: candidate.email,
+      speciality,
+      active: true,
+      badgeCode: previous?.badgeCode,
+    }
+    if (previous) updated.push(next)
+    else added.push(next)
   }
-  return { matches, issues, totalRows: dataRows.length }
+
+  // Active students missing from the file are deactivated, never deleted.
+  const deactivated = currentRoster
+    .filter(student => student.active && !seen.has(student.id))
+    .map(student => ({ ...student, active: false }))
+
+  // Students already inactive and absent from the file are reported in neither
+  // bucket, but must still survive the merge or their history is lost.
+  const unchanged = currentRoster.filter(student => !student.active && !seen.has(student.id))
+
+  return { added, updated, deactivated, unchanged, issues, totalRows: dataRows.length }
+}
+
+export function applyRosterImport(preview: RosterImportPreview): Student[] {
+  const merged = new Map<string, Student>()
+  for (const student of [
+    ...preview.unchanged,
+    ...preview.deactivated,
+    ...preview.updated,
+    ...preview.added,
+  ]) {
+    merged.set(student.id, student)
+  }
+  return [...merged.values()]
 }
