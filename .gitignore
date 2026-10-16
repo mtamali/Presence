@@ -1,0 +1,12 @@
+node_modules/
+dist/
+generated/
+.env
+*.tsbuildinfo
+web/dist/
+server/data/*.db
+server/data/*.db-journal
+server/data/*.db-wal
+server/data/*.db-shm
+.DS_Store
+*.log
