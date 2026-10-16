@@ -1214,6 +1214,8 @@ Repoint every import in `src/App.tsx` from `./model` to its new home, then delet
 | `normalizeBadge`, `findStudentByBadge` | move into `src/components/badges/ScannerModal.tsx` as module-private helpers — that is now their only consumer |
 | `loadStudentEmails`, `saveStudentEmails` | **deleted** — email now arrives in the roster itself (spec §4.1), so the separate `presence-student-emails-v1` key is obsolete |
 
+`ImportEmailsModal` in `App.tsx` is the only consumer of `loadStudentEmails`/`saveStudentEmails`, so **delete it in this task too** — leaving it would not compile. Its replacement, `ImportRosterModal`, arrives in Task 13. Between here and there the app has no roster-import button, which is fine: the roster still comes from the seed JSON, and no verification step in Tasks 9–12 uses import.
+
 Two render sites also change shape: the roster table's `Group` column and the `section` subtitle fallback are removed, because neither field exists on the new `Student` (spec §4.1). The subtitle becomes `student.email ?? student.id`.
 
 Run: `npm run build`
@@ -1242,7 +1244,9 @@ const BadgePage = lazy(() => import('./components/badges/BadgePage'))
 const ScannerModal = lazy(() => import('./components/badges/ScannerModal'))
 ```
 
-Gate every badge entry point on `BADGES_ENABLED`: the `page === 'badges'` nav item, the badges branch of the page switch, and the scanner button in `SessionSummary`. Wrap rendered lazy components in `<Suspense fallback={null}>`.
+Gate every badge entry point on `BADGES_ENABLED`: the `page === 'badges'` nav item, the badges branch of the page switch, and the scanner button. Wrap rendered lazy components in `<Suspense fallback={null}>`.
+
+All three of those still live inline in `App.tsx` at this point — `AppShell` and `SessionSummary` do not exist until Tasks 10 and 12. Gate them where they are; the extractions later carry the already-gated JSX across unchanged.
 
 - [ ] **Step 5: Verify the chunk split**
 
@@ -1376,7 +1380,7 @@ button:disabled { cursor: not-allowed; }
 
 - [ ] **Step 4: Create the remaining module files and the barrel**
 
-Create `shell.css`, `session.css`, `roster.css`, `modals.css`, and `badges.css` as empty files with a one-line comment naming their responsibility — Tasks 10–13 fill them. Then:
+Create `shell.css`, `session.css`, `roster.css`, `modals.css`, and `badges.css`, each starting with a one-line comment naming its responsibility. Step 5 ports the existing rules into them; Tasks 10–13 then restructure specific components on top of that ported baseline. Then:
 
 ```css
 /* src/styles/index.css */
