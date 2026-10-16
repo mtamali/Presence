@@ -1,0 +1,30 @@
+/* Design tokens. Values only — no selectors beyond :root. */
+
+:root {
+  --ink: #142b39;
+  --muted: #6d7d87;
+  --teal: #067d82;
+  --teal-strong: #087f83;
+  --line: #e3e9ec;
+  --surface: #fff;
+  --canvas: #f5f7f8;
+  --navy: #112c3b;
+  --shadow: 0 12px 35px rgba(19, 44, 59, .055);
+
+  --ok-fg: #14836a;   --ok-bg: #e7f6ee;
+  --no-fg: #c7746a;   --no-bg: #fff0ed;
+  --idle-fg: #84949b; --idle-bg: #f4f6f7;
+
+  --space-1: .25rem; --space-2: .5rem;  --space-3: .75rem;
+  --space-4: 1rem;   --space-5: 1.5rem; --space-6: 2rem;
+
+  --radius-sm: 6px; --radius-md: 10px; --radius-lg: 14px;
+
+  --tap: 2.75rem;            /* 44px minimum touch target */
+  --font-body: 'DM Sans', system-ui, sans-serif;
+  --font-display: 'Manrope', 'DM Sans', system-ui, sans-serif;
+
+  /* Custom properties cannot be used inside @media, so these are documentation
+     only — the literals 48rem / 64rem / 90rem are written out in each rule. */
+  --bp-tablet: 48rem; --bp-desktop: 64rem; --bp-wide: 90rem;
+}

@@ -1,0 +1,119 @@
+/* The student roster panel: head, tools, table rows, and check-in controls. */
+
+/* Shared panel chrome — .history-panel's own rules live in session.css. */
+.roster-panel, .history-panel {
+  border: 1px solid #e3e9ec;
+  border-radius: 13px;
+  background: white;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.roster-head { padding: 18px; display: block; align-items: center; justify-content: space-between; gap: 20px; }
+.roster-head h3, .history-heading h3 { font-size: 15px; letter-spacing: -.035em; margin: 0 0 4px; }
+.roster-head p, .history-heading p { color: #8a9aa2; font-size: 11px; margin: 0; }
+
+.roster-tools { display: flex; gap: 8px; margin-top: 17px; flex-direction: column; }
+
+/* ---- Table --------------------------------------------------------------
+   The table keeps its 700px floor and scrolls inside .table-scroll, so a
+   narrow viewport never pushes the page itself sideways. Task 11 replaces
+   this with cards on phone. */
+
+.table-scroll { overflow: auto; }
+.roster-table { width: 100%; border-collapse: collapse; min-width: 700px; }
+.roster-table thead { background: #f8fafb; }
+.roster-table th {
+  text-align: left;
+  padding: 12px 13px;
+  color: #82949f;
+  text-transform: uppercase;
+  font-size: 9px;
+  letter-spacing: .09em;
+  font-weight: 800;
+  white-space: nowrap;
+  border-top: 1px solid #edf1f2;
+  border-bottom: 1px solid #edf1f2;
+}
+.roster-table th:first-child { width: 35%; }
+.roster-table td { border-bottom: 1px solid #edf1f2; padding: 11px 13px; font-size: 11px; }
+.roster-table tbody tr:last-child td { border-bottom: 0; }
+.roster-table tbody tr:hover { background: #fbfcfc; }
+
+.student-cell { display: flex; align-items: center; gap: 11px; }
+.student-cell strong { display: block; font-size: 11px; color: #24404e; white-space: nowrap; }
+.student-cell small { color: #a0acb1; font-size: 9px; display: block; margin-top: 3px; }
+.avatar {
+  width: 34px;
+  height: 34px;
+  flex: none;
+  border-radius: 10px;
+  background: #e9f3f3;
+  color: #4d878b;
+  display: grid;
+  place-items: center;
+  font: 800 10px 'Manrope', sans-serif;
+}
+.muted-cell { color: #80909a; }
+
+/* ---- Status -------------------------------------------------------------- */
+
+.status-pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 8px; border-radius: 5px; font-size: 10px; font-weight: 700; white-space: nowrap; }
+.status-pill span { width: 6px; height: 6px; background: currentColor; border-radius: 50%; }
+.status-pill.unchecked { background: var(--idle-bg); color: var(--idle-fg); }
+.status-pill.present { background: var(--ok-bg); color: var(--ok-fg); }
+.status-pill.absent { background: var(--no-bg); color: var(--no-fg); }
+.check-time { display: block; color: #9eacb2; font-size: 9px; margin-top: 5px; }
+
+/* ---- Check-in controls --------------------------------------------------- */
+
+.row-actions { display: flex; gap: 5px; justify-content: flex-end; }
+.mini-button {
+  border: 1px solid #e4eaed;
+  background: white;
+  color: #9aadb4;
+  border-radius: 6px;
+  width: var(--tap);
+  height: var(--tap);
+  display: grid;
+  place-items: center;
+}
+.mini-button:hover, .mini-button.selected-present { background: #e5f5ee; color: #09846a; border-color: #c9e8d9; }
+.mini-button.selected-absent, .mini-button:nth-child(2):hover { background: var(--no-bg); color: #c46e66; border-color: #f2d2cc; }
+.action-column { text-align: right !important; }
+.locked-cell { display: inline-flex; align-items: center; gap: 6px; color: #9aaab1; font-size: 10px; }
+
+/* ---- Footer -------------------------------------------------------------- */
+
+.roster-footer {
+  min-height: 52px;
+  padding: 10px 17px;
+  border-top: 1px solid #edf1f2;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-direction: column;
+  gap: 20px;
+  color: #9aaab1;
+  font-size: 10px;
+}
+.text-button { border: 0; background: none; color: #447682; display: inline-flex; align-items: center; gap: 6px; font-weight: 700; font-size: 10px; }
+.text-button:hover { text-decoration: underline; }
+.empty-table { text-align: center; padding: 32px; color: #8fa0a8; font-size: 12px; }
+
+/* ========================================================================
+   48rem — head and footer go back to single rows.
+   ===================================================================== */
+@media (min-width: 48rem) {
+  .roster-head { display: flex; padding: 22px 23px; }
+  .roster-tools { margin-top: 0; }
+  .roster-table th, .roster-table td { padding-left: 23px; padding-right: 23px; }
+  .roster-footer { padding: 0 23px; align-items: center; flex-direction: row; }
+}
+
+/* ========================================================================
+   64rem — the search field and filter sit side by side.
+   ===================================================================== */
+@media (min-width: 64rem) {
+  .roster-tools { flex-direction: row; }
+}

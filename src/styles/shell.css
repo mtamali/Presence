@@ -1,0 +1,311 @@
+/* App chrome: sidebar/nav, topbar, page header, speciality strip, shared controls. */
+
+/* ---- Shell ---------------------------------------------------------------
+   Phone: the sidebar is a two-column top bar (brand | nav). From 48rem it
+   becomes a real sidebar with labels; 90rem only widens it. The old 71px
+   icon-rail tier is not reproduced — see task-9-report.md. */
+
+.app-shell { min-height: 100vh; display: block; }
+
+.sidebar {
+  width: 100%;
+  flex: none;
+  min-height: 0;
+  height: auto;
+  background: #112c3b;
+  color: #e8f0f2;
+  padding: 13px 16px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 7px 20px;
+  position: static;
+}
+
+.brand { display: flex; align-items: center; gap: 12px; padding: 0; grid-row: 1; grid-column: 1; }
+.brand-mark { width: 35px; height: 35px; border-radius: 12px; background: #e3f5f2; color: #0c7377; display: grid; place-items: center; }
+.brand strong { font-size: 16px; letter-spacing: -.06em; display: block; line-height: 1.1; }
+.brand span { display: none; color: #94aeb8; font-size: 11px; margin-top: 4px; }
+
+.sidebar-caption {
+  display: none;
+  font-size: 11px;
+  font-weight: 700;
+  color: #7d9baa;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  padding: 0 13px;
+  margin-bottom: 10px;
+}
+
+.main-nav { display: flex; gap: 4px; grid-row: 1; grid-column: 2; justify-content: flex-end; }
+.class-nav { display: none; gap: 4px; }
+
+.nav-item, .class-item {
+  border: 0;
+  background: none;
+  color: #a9bec8;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  border-radius: 10px;
+}
+/* Icon-only in the phone top bar. font-size:0 suppresses the label without
+   removing it from the accessibility tree; the svg is sized by its own
+   attributes, so it is unaffected. Task 10 drops this when it replaces the
+   nav with a bottom tab bar. */
+.nav-item {
+  gap: 13px;
+  padding: 0;
+  font-weight: 600;
+  font-size: 0;
+  width: var(--tap);
+  height: var(--tap);
+  justify-content: center;
+}
+.nav-item svg { flex: none; }
+.nav-item:hover, .class-item:hover { background: #193c4d; color: #fff; }
+.nav-item.active { background: #1d4653; color: #f3ffff; }
+.nav-item.active svg { color: #68cfca; }
+
+/* Hidden alongside the .class-nav it labels — the original left it visible in
+   the phone top bar, captioning a list that is not there. */
+.class-caption { display: none; align-items: center; justify-content: space-between; margin: 34px 0 9px; }
+.class-caption span { color: #6f919e; }
+.class-item { gap: 10px; padding: 11px 12px; }
+.class-item.selected { background: #204651; color: #fff; }
+.class-code { color: inherit; font-size: 12px; font-weight: 800; letter-spacing: .025em; }
+.class-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; flex: 1; opacity: .72; }
+.class-count { font-size: 11px; color: #97b1b9; background: #254656; padding: 2px 6px; border-radius: 5px; }
+.class-item.selected .class-count { background: #357174; color: #d8f9f6; }
+
+.sidebar-bottom {
+  display: none;
+  margin-top: auto;
+  border-top: 1px solid #2b4855;
+  padding: 23px 10px 4px;
+  align-items: center;
+  gap: 12px;
+}
+.saved-icon { width: 35px; height: 35px; border-radius: 10px; background: #1e4550; color: #6bc8c2; display: grid; place-items: center; }
+.sidebar-bottom strong { font: 700 11px 'Manrope', sans-serif; display: block; }
+.sidebar-bottom span { font-size: 10px; color: #88a4af; display: block; margin-top: 3px; }
+
+.main-content { min-width: 0; flex: 1; }
+
+/* ---- Topbar -------------------------------------------------------------- */
+
+.topbar {
+  height: 50px;
+  background: #fff;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 17px;
+}
+.crumb, .topbar-date { display: flex; align-items: center; gap: 10px; color: #81929c; font-size: 12px; }
+.crumb svg { color: #0a7980; }
+.crumb strong { color: #263f4e; font-weight: 700; }
+.crumb-slash { color: #ced8dd; margin: 0 3px; }
+.topbar-date { display: none; font-weight: 600; }
+
+/* ---- Page header --------------------------------------------------------- */
+
+.content-wrap { max-width: 1450px; margin: auto; padding: 25px 17px; }
+
+.page-title-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 25px; margin-bottom: 23px; }
+.page-title-row h1 { font-size: 21px; letter-spacing: -.055em; line-height: 1.22; margin-bottom: 8px; font-weight: 800; }
+.eyebrow { font: 800 11px 'Manrope', sans-serif; text-transform: uppercase; letter-spacing: .115em; color: #078187; margin-bottom: 9px; }
+.eyebrow.small { font-size: 10px; letter-spacing: .1em; }
+.page-subtitle { color: #768892; font-size: 11px; line-height: 1.55; margin-bottom: 0; }
+
+/* ---- Shared controls ----------------------------------------------------- */
+
+.button {
+  border: 1px solid transparent;
+  border-radius: 9px;
+  min-height: var(--tap);
+  padding: 0 17px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  font-weight: 700;
+  font-size: 12px;
+  white-space: nowrap;
+  transition: background .15s, transform .15s;
+}
+.button:hover { transform: translateY(-1px); }
+.button-primary { background: #087f83; color: white; box-shadow: 0 6px 13px rgba(8, 127, 131, .18); }
+.button-primary:hover { background: #056e72; }
+.button-light { background: white; border-color: #dfe6ea; color: #344f5d; }
+.button-light:hover { background: #f6f9f9; }
+
+/* Icon-only on phone (the label is suppressed, not removed, so it stays in
+   the accessibility tree); full button with its label from 48rem. */
+.page-action {
+  margin: 0;
+  width: var(--tap);
+  height: var(--tap);
+  min-width: var(--tap);
+  padding: 0;
+  font-size: 0;
+  gap: 0;
+}
+.page-action svg { width: 20px; }
+
+.search-field {
+  min-height: var(--tap);
+  border: 1px solid #e1e8eb;
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0 11px;
+  color: #9aabb3;
+  background: #fff;
+  flex: 1;
+}
+.search-field input { border: 0; outline: 0; width: 100%; min-width: 0; font-size: 11px; color: #294350; }
+.search-field input::placeholder { color: #9faeb5; }
+
+.select-wrap { position: relative; border: 1px solid #e1e8eb; border-radius: 7px; display: flex; align-items: center; }
+.select-wrap select { appearance: none; border: 0; background: transparent; padding: 0 30px 0 12px; font-size: 11px; color: #365260; font-weight: 600; outline: 0; }
+.select-wrap svg { position: absolute; right: 9px; pointer-events: none; color: #90a0a8; }
+
+/* ---- Speciality strip ---------------------------------------------------- */
+
+.speciality-strip { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; margin-bottom: 30px; }
+.speciality-card {
+  min-height: 60px;
+  position: relative;
+  border: 1px solid #e3e9ed;
+  border-radius: 8px;
+  background: white;
+  display: flex;
+  align-items: center;
+  text-align: left;
+  padding: 10px;
+  gap: 9px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  color: var(--ink);
+}
+.speciality-card.current { border-color: #0b9494; box-shadow: 0 0 0 1px #0b9494, 0 14px 31px rgba(7, 124, 128, .09); }
+.speciality-symbol { display: none; width: 39px; height: 39px; flex: none; border-radius: 10px; place-items: center; background: #e8f5f3; color: #088580; }
+.symbol-1 { background: #edf1fb; color: #5b74bf; }
+.symbol-2 { background: #fff3e8; color: #be7b3b; }
+.speciality-card-text { display: flex; flex-direction: column; min-width: 0; gap: 3px; flex: 1; }
+.speciality-card-text strong { font-size: 11px; letter-spacing: -.04em; }
+.speciality-card-text > span { display: none; font-size: 10px; color: #83929b; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.speciality-tail { display: none; flex-direction: column; text-align: right; gap: 1px; }
+.speciality-tail strong { font-size: 17px; letter-spacing: -.04em; }
+.speciality-tail span { font-size: 10px; color: #93a0a7; }
+.card-progress { position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: #e9f1f1; }
+.card-progress span { display: block; height: 100%; background: #0c9897; }
+
+/* ---- Section heading ----------------------------------------------------- */
+
+.section-heading { display: flex; justify-content: space-between; align-items: end; margin-bottom: 17px; }
+.section-heading .eyebrow { margin-bottom: 6px; }
+.section-heading h2 { font-size: 18px; letter-spacing: -.045em; margin-bottom: 0; }
+.section-meta { font-size: 11px; font-weight: 700; color: #8da0a8; }
+
+/* ---- Footer and toast ---------------------------------------------------- */
+
+.page-footer { display: flex; justify-content: space-between; color: #a9b5bb; font-size: 10px; padding: 24px 2px 0; }
+
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 40;
+  max-width: calc(100% - 48px);
+  min-height: 46px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #173d48;
+  color: #fff;
+  border-radius: 9px;
+  padding: 10px 11px 10px 15px;
+  box-shadow: 0 14px 38px rgba(16, 53, 63, .25);
+  font-size: 11px;
+}
+.toast > svg { flex: none; color: #75dcc3; }
+.toast button { border: 0; background: transparent; color: #b7ced1; margin-left: 15px; display: grid; place-items: center; }
+
+/* ========================================================================
+   48rem — the shell becomes a real sidebar beside the content.
+   ===================================================================== */
+@media (min-width: 48rem) {
+  .app-shell { display: flex; }
+
+  .sidebar {
+    width: 220px;
+    min-height: 100vh;
+    height: 100vh;
+    padding: 27px 16px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    position: sticky;
+    top: 0;
+  }
+
+  .brand { padding: 3px 12px 35px; grid-row: auto; grid-column: auto; }
+  .brand-mark { width: 41px; height: 41px; }
+  .brand strong { font-size: 20px; }
+  .brand span { display: block; }
+
+  .sidebar-caption { display: block; }
+  .class-caption { display: flex; }
+  .class-nav { display: grid; }
+  .sidebar-bottom { display: flex; }
+
+  .main-nav { display: grid; grid-row: auto; grid-column: auto; justify-content: normal; }
+  .nav-item { padding: 12px 13px; width: 100%; height: auto; font-size: 13px; justify-content: flex-start; }
+
+  .topbar { height: 72px; padding: 0 28px; }
+  .topbar-date { display: flex; }
+
+  .content-wrap { padding: 32px 28px; }
+
+  .page-title-row { margin-bottom: 31px; }
+  .page-title-row h1 { font-size: 29px; }
+  .page-subtitle { font-size: 13px; }
+
+  .page-action { margin: 20px 0 0; width: auto; height: auto; min-width: 0; padding: 0 17px; font-size: 12px; gap: 9px; }
+  .page-action svg { width: auto; }
+
+  .search-field { flex: 0 1 auto; }
+  .search-field input { width: 150px; }
+
+  .speciality-strip { gap: 14px; margin-bottom: 39px; }
+  .speciality-card { min-height: 74px; padding: 15px; border-radius: 12px; }
+  .speciality-symbol { display: grid; }
+  .speciality-card-text strong { font-size: 16px; }
+
+  .section-heading h2 { font-size: 21px; }
+}
+
+/* ========================================================================
+   64rem — roomier cards, full-width search.
+   ===================================================================== */
+@media (min-width: 64rem) {
+  .search-field input { width: 180px; }
+  .speciality-card { min-height: 105px; }
+  .speciality-card-text > span { display: block; }
+}
+
+/* ========================================================================
+   90rem — widest desktop.
+   ===================================================================== */
+@media (min-width: 90rem) {
+  .sidebar { width: 262px; }
+  .topbar { padding: 0 42px; }
+  .content-wrap { padding: 41px 43px 24px; }
+  .speciality-card { padding: 19px; gap: 13px; }
+  .speciality-tail { display: flex; }
+}

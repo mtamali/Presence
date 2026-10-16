@@ -1,0 +1,42 @@
+/* Reset, element defaults, focus rings, and the global touch-target floor. */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  min-width: 320px;
+  font-family: var(--font-body);
+  color: var(--ink);
+  background: var(--canvas);
+  font-synthesis: none;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, strong { font-family: var(--font-display); }
+h1, h2, h3, p { margin-top: 0; }
+
+button, input, select { font: inherit; }
+button { cursor: pointer; }
+button:disabled { cursor: not-allowed; }
+
+:where(button, input, select, a):focus-visible {
+  outline: 3px solid #8adad8;
+  outline-offset: 2px;
+}
+
+/* Every interactive control clears the thumb threshold. :where() keeps this at
+   zero specificity so it acts as a floor, never as an override — any component
+   that needs a taller control just sets its own min-height. Components that
+   would land UNDER 44px set it explicitly to var(--tap) in their own module. */
+:where(button, select, input[type="date"], input[type="time"]) { min-height: var(--tap); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

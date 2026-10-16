@@ -1,0 +1,168 @@
+/* The active-session banner, its stat tiles, session history, and empty state. */
+
+.session-summary {
+  border-radius: 13px;
+  background: #163949;
+  color: #fff;
+  padding: 20px;
+  display: block;
+  justify-content: space-between;
+  align-items: center;
+  gap: 30px;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 17px;
+}
+.session-summary:after {
+  content: '';
+  position: absolute;
+  right: 170px;
+  top: -53px;
+  width: 240px;
+  height: 240px;
+  border: 1px solid rgba(146, 216, 216, .12);
+  border-radius: 50%;
+  box-shadow: 0 0 0 34px rgba(146, 216, 216, .035), 0 0 0 68px rgba(146, 216, 216, .025);
+  pointer-events: none;
+}
+.session-summary-main, .session-summary-actions { position: relative; z-index: 1; }
+.session-summary h3 { font-size: 18px; letter-spacing: -.04em; margin: 10px 0 10px; }
+
+.session-state { display: inline-flex; align-items: center; gap: 6px; border-radius: 5px; font-size: 10px; font-weight: 700; padding: 5px 8px; }
+.session-state span { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.session-state.open { background: #1d635f; color: #93e5d2; }
+.session-state.closed { background: #3b5662; color: #d4e1e6; }
+
+.session-detail-line { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; color: #adcad1; font-size: 11px; }
+.session-detail-line span { display: flex; align-items: center; gap: 6px; }
+
+.session-summary-actions {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 18px;
+  justify-content: flex-start;
+}
+.session-summary-actions .button { width: 100%; }
+.session-summary-actions .button-light { background: #f6fafb; }
+
+/* ---- Stat tiles ---------------------------------------------------------- */
+
+.stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 18px; }
+.stat-card {
+  background: #fff;
+  border: 1px solid #e5eaed;
+  border-radius: 11px;
+  padding: 15px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  box-shadow: var(--shadow);
+}
+.stat-icon { width: 32px; height: 32px; flex: none; border-radius: 9px; display: grid; place-items: center; }
+.stat-icon.green { color: #098976; background: #e8f6f0; }
+.stat-icon.red { color: #c46e66; background: #fff0ec; }
+.stat-icon.amber { color: #b7833e; background: #fff5e5; }
+.stat-icon.blue { color: #5a7fc0; background: #edf3fc; }
+.stat-card strong { font-size: 21px; letter-spacing: -.05em; display: block; line-height: 1.05; }
+.stat-card span:not(.stat-icon) { font-size: 10px; color: #8c9ba3; display: block; margin-top: 4px; }
+
+/* ---- Session history ----------------------------------------------------- */
+/* Panel chrome for .history-panel is shared with the roster — see roster.css. */
+
+.history-panel { margin-top: 20px; }
+.history-heading { padding: 19px 23px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #edf1f2; }
+.history-heading > svg { color: #a2b1b7; }
+.history-list { display: grid; }
+.history-item {
+  border: 0;
+  border-bottom: 1px solid #edf1f2;
+  background: white;
+  padding: 10px 13px;
+  display: flex;
+  align-items: center;
+  text-align: left;
+  gap: 13px;
+  width: 100%;
+  color: #294452;
+}
+.history-item:last-child { border-bottom: 0; }
+.history-item:hover, .history-item.selected { background: #f8fbfb; }
+.history-date { width: 36px; height: 39px; border-radius: 6px; background: #eef4f5; display: flex; flex-direction: column; align-items: center; justify-content: center; flex: none; }
+.history-date strong { font-size: 13px; line-height: 1.1; }
+.history-date small { font-size: 8px; color: #8397a1; text-transform: uppercase; }
+.history-title { flex: 1; min-width: 0; }
+.history-title strong { display: block; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.history-title small { display: block; font-size: 9px; color: #9aacb2; margin-top: 3px; }
+.history-count { display: none; color: #597482; align-items: center; gap: 6px; font-size: 10px; font-weight: 600; }
+.history-count svg { color: #0f9a84; }
+.history-open, .history-closed { display: none; font-size: 9px; font-weight: 700; border-radius: 5px; padding: 5px 8px; }
+.history-open { color: #078879; background: #e7f7ef; }
+.history-closed { color: #7d8e95; background: #f0f3f4; }
+.history-arrow { display: none; color: #a5b5bc; }
+
+/* ---- Empty state --------------------------------------------------------- */
+
+.empty-session { border: 1px dashed #c8d8dc; border-radius: 13px; background: #fff; text-align: center; padding: 43px 20px; margin-bottom: 20px; }
+.empty-illustration {
+  margin: 0 auto 20px;
+  width: 88px;
+  height: 88px;
+  border-radius: 23px;
+  background: #e9f5f4;
+  color: #0b8287;
+  display: grid;
+  place-items: center;
+  position: relative;
+}
+.empty-illustration span {
+  position: absolute;
+  bottom: -8px;
+  right: -8px;
+  background: #fff;
+  border: 1px solid #d6e7e8;
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  display: grid;
+  place-items: center;
+}
+.empty-session h3 { font-size: 19px; letter-spacing: -.04em; margin-bottom: 8px; }
+.empty-session p { font-size: 12px; line-height: 1.6; color: #7d919b; max-width: 360px; margin: 0 auto 19px; }
+
+/* ========================================================================
+   48rem — the banner goes side-by-side, stats go to four across.
+   ===================================================================== */
+@media (min-width: 48rem) {
+  .session-summary { display: flex; padding: 23px 26px; }
+  .session-summary h3 { font-size: 20px; }
+  .session-detail-line { gap: 17px; }
+
+  .session-summary-actions { margin-top: 0; justify-content: flex-end; }
+  .session-summary-actions .button { width: auto; }
+
+  .stat-grid { grid-template-columns: repeat(4, 1fr); }
+
+  .history-item { padding: 11px 23px; }
+  .history-count { display: flex; }
+  .history-open, .history-closed { display: block; }
+  .history-arrow { display: block; }
+}
+
+/* ========================================================================
+   64rem — roomier stat tiles.
+   ===================================================================== */
+@media (min-width: 64rem) {
+  .stat-grid { gap: 13px; }
+  .stat-card { gap: 14px; }
+  .stat-icon { width: 38px; height: 38px; }
+}
+
+/* ========================================================================
+   90rem — widest desktop.
+   ===================================================================== */
+@media (min-width: 90rem) {
+  .session-summary-actions { flex-wrap: nowrap; justify-content: normal; }
+  .stat-card { padding: 19px; }
+}
