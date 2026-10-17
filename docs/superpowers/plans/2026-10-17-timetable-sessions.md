@@ -1236,6 +1236,8 @@ would leave the render unreadable by Task 9.
 **Files:**
 - Create: `src/components/AttendancePage.tsx`
 - Modify: `src/App.tsx`
+- Modify: `src/components/SessionSummary.tsx` (drop the dead `onScan` prop)
+- Modify: `src/styles/session.css` (add `.empty-actions`)
 
 **Interfaces:**
 - Consumes: everything already in `App.tsx`.
