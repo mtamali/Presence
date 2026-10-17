@@ -28,6 +28,12 @@ export function ImportRosterModal({ speciality, currentRoster, onClose, onApply 
   const [preview, setPreview] = useState<RosterImportPreview | null>(null)
   const [error, setError] = useState('')
 
+  // Rows that will actually land in the roster. When a file yields none — every
+  // row rejected, or a well-formed file for the wrong class — the only effect of
+  // applying it would be to deactivate the entire class, which is never what
+  // "update the roster from this file" means. So that case cannot be confirmed.
+  const usableRows = preview ? preview.added.length + preview.updated.length : 0
+
   async function readFile(file: File | undefined) {
     if (!file) return
     setFileName(file.name)
@@ -102,13 +108,18 @@ export function ImportRosterModal({ speciality, currentRoster, onClose, onApply 
             </div>}
           </div>
 
-          <div className="modal-note">
-            <FileSpreadsheet size={18} />
-            <span>
-              {preview.totalRows} {preview.totalRows === 1 ? 'row' : 'rows'} read. Students missing from the
-              file are kept and marked inactive, never deleted, so their past attendance stays intact.
-            </span>
-          </div>
+          {usableRows === 0
+            ? <p className="import-error" role="alert">
+              No usable rows in this file, so there is nothing to import. Check that it
+              lists {speciality} students and that the Student ID column matches the roster.
+            </p>
+            : <div className="modal-note">
+              <FileSpreadsheet size={18} />
+              <span>
+                {preview.totalRows} {preview.totalRows === 1 ? 'row' : 'rows'} read. Students missing from the
+                file are kept and marked inactive, never deleted, so their past attendance stays intact.
+              </span>
+            </div>}
         </>}
 
         <div className="modal-actions">
@@ -116,7 +127,7 @@ export function ImportRosterModal({ speciality, currentRoster, onClose, onApply 
           <button
             type="button"
             className="button button-primary"
-            disabled={!preview}
+            disabled={!preview || usableRows === 0}
             onClick={() => preview && onApply(applyRosterImport(preview))}
           >
             Update roster

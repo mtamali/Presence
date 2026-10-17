@@ -156,18 +156,32 @@
    .page-title-row's space-between pinning the title to the left edge. */
 .page-actions { display: flex; gap: var(--space-2); flex: none; }
 
-/* Icon-only on phone (the label is suppressed, not removed, so it stays in
-   the accessibility tree); full button with its label from 48rem. */
+/* Icon-only on phone — the title row has no width for two labels beside the
+   h1 — and a full labelled button from 48rem. */
 .page-action {
   margin: 0;
   width: var(--tap);
   height: var(--tap);
   min-width: var(--tap);
   padding: 0;
-  font-size: 0;
   gap: 0;
 }
 .page-action svg { width: 20px; }
+
+/* Clipped, not zero-sized: a `font-size: 0` is inherited by every child, so
+   anything added inside the button later would collapse silently. Clipping
+   keeps the label in the accessibility tree, which is where the button needs
+   it — these buttons carry no aria-label of their own. */
+.page-action-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
 
 .search-field {
   min-height: var(--tap);
@@ -181,7 +195,10 @@
   background: #fff;
   flex: 1;
 }
-.search-field input { border: 0; outline: 0; width: 100%; min-width: 0; font-size: 11px; color: #294350; }
+/* align-self: stretch, not the parent's 44px alone — the field is a centred
+   flex row, so without it the input is only as tall as its text (16px) and the
+   remaining 28px of the tap target does not focus anything. */
+.search-field input { border: 0; outline: 0; width: 100%; min-width: 0; font-size: 11px; color: #294350; align-self: stretch; }
 .search-field input::placeholder { color: #9faeb5; }
 
 /* The inner control suppresses its own ring because the wrapper draws the
@@ -328,6 +345,15 @@
 
   .page-action { margin: 20px 0 0; width: auto; height: auto; min-width: 0; padding: 0 17px; font-size: 12px; gap: 9px; }
   .page-action svg { width: auto; }
+  /* Unclip the label — there is room for it now. */
+  .page-action-label {
+    position: static;
+    width: auto;
+    height: auto;
+    margin: 0;
+    overflow: visible;
+    clip-path: none;
+  }
 
   .search-field { flex: 0 1 auto; }
   .search-field input { width: 150px; }

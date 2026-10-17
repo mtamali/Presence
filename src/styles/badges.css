@@ -20,10 +20,10 @@
 .badge-toolbar p { display: none; font-size: 10px; color: #879aa2; align-items: center; gap: 7px; margin: 0; }
 .badge-toolbar p svg { color: #159584; }
 
+/* The toolbar holds only the email count now — the print button moved to the
+   page title row, so `.badge-toolbar-right .button` matched nothing. */
 .badge-toolbar-right { display: flex; align-items: center; gap: 7px; }
 .badge-toolbar-right > span { font-size: 10px; font-weight: 700; color: #7b939d; }
-.badge-toolbar-right .button { font-size: 0; padding: 0; width: var(--tap); min-width: var(--tap); gap: 0; }
-.badge-toolbar-right .button svg { width: 17px; }
 
 /* ---- Badge card ---------------------------------------------------------- */
 
@@ -129,8 +129,6 @@
 
   .badge-toolbar-right { gap: 12px; }
   .badge-toolbar-right > span { font-size: 11px; }
-  .badge-toolbar-right .button { font-size: 12px; padding: 0 17px; width: auto; min-width: 0; gap: 9px; }
-  .badge-toolbar-right .button svg { width: auto; }
 
   .badge-grid { grid-template-columns: 1fr 1fr; }
   .student-badge { max-width: none; }

@@ -143,12 +143,14 @@ function App() {
       <div className="page-title-row">
         <div><p className="eyebrow">{showBadges ? 'Identity cards' : 'Classroom attendance'}</p><h1>{showBadges ? 'Student QR badges' : 'Every student, accounted for.'}</h1><p className="page-subtitle">{showBadges ? 'Print a unique badge for each student. Scan it during any course session.' : 'Create a course session, mark each student present or absent, and review your class in real time.'}</p></div>
         {showBadges
-          ? <button className="button button-primary page-action" onClick={() => window.print()}><Printer size={18} /> Print badges</button>
+          ? <button className="button button-primary page-action" onClick={() => window.print()}><Printer size={18} /><span className="page-action-label">Print badges</span></button>
           : <div className="page-actions">
             {/* The roster is per class and must be reachable with no session
-                selected, so it lives beside the title, not in the roster panel. */}
-            <button className="button button-light page-action" onClick={() => setImportOpen(true)}><Upload size={19} /> Import roster</button>
-            <button className="button button-primary page-action" onClick={() => setCreateOpen(true)}><Plus size={19} /> New session</button>
+                selected, so it lives beside the title, not in the roster panel.
+                The labels are clipped on phone, not dropped — they are each
+                button's only accessible name. */}
+            <button className="button button-light page-action" onClick={() => setImportOpen(true)}><Upload size={19} /><span className="page-action-label">Import roster</span></button>
+            <button className="button button-primary page-action" onClick={() => setCreateOpen(true)}><Plus size={19} /><span className="page-action-label">New session</span></button>
           </div>}
       </div>
 

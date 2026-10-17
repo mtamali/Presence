@@ -63,6 +63,17 @@ describe('previewRosterImport', () => {
     expect(preview.issues.some(i => /duplicate/i.test(i.reason))).toBe(true)
   })
 
+  // The modal refuses to apply a preview with no added and no updated rows,
+  // because the only thing left for it to do is deactivate the whole class.
+  // This pins the shape that guard reads.
+  it('reports no usable rows when every row is rejected', () => {
+    const roster = [student('1'), student('2')]
+    const preview = previewRosterImport(`${header}\n9,A B,same@x.dz\n8,C D,same@x.dz`, '1MAUT', roster)
+    expect(preview.added).toEqual([])
+    expect(preview.updated).toEqual([])
+    expect(preview.deactivated).toHaveLength(2)
+  })
+
   it('rejects a row with no student id', () => {
     const preview = previewRosterImport(`${header}\n,A B,a@x.dz`, '1MAUT', [])
     expect(preview.added).toEqual([])
