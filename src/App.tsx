@@ -106,9 +106,10 @@ function App() {
   function handleCreate(details: SessionDetails) {
     const session = createSession(details)
     setSessions(current => [session, ...current])
-    setSelectedId(session.id)
     setCreateOpen(false)
-    setPage('attendance')
+    // Via openSession, so an ad-hoc 4IGEI session created while the picker
+    // sits on 1MAUT lands on a screen that actually lists it.
+    openSession(session)
     setToast(`${session.course} session started.`)
   }
 
@@ -191,7 +192,13 @@ function App() {
         onToast={setToast}
       />}
 
-      {createOpen && <CreateSessionModal speciality={speciality} onClose={() => setCreateOpen(false)} onCreate={handleCreate} />}
+      {createOpen && <CreateSessionModal
+        speciality={speciality}
+        courses={courses}
+        onClose={() => setCreateOpen(false)}
+        onCreate={handleCreate}
+        onGoToCourses={() => { setCreateOpen(false); setPage('courses') }}
+      />}
       {importOpen && <ImportRosterModal speciality={speciality} currentRoster={storedRoster} onClose={() => setImportOpen(false)} onApply={handleImport} />}
       {toast && <div className="toast" role="status"><CheckCircle2 size={18} />{toast}<button onClick={() => setToast('')} aria-label="Dismiss notification"><X size={16} /></button></div>}
     </AppShell>
