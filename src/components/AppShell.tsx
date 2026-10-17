@@ -1,12 +1,13 @@
 import type { ReactNode } from 'react'
-import { BookMarked, CalendarDays, GraduationCap, LayoutGrid, QrCode, ScanLine, ShieldCheck } from 'lucide-react'
+import { BookMarked, CalendarClock, CalendarDays, GraduationCap, LayoutGrid, QrCode, ScanLine, ShieldCheck } from 'lucide-react'
 import { BADGES_ENABLED } from '../config'
 import { formatDate, localToday } from '../format'
 import type { Speciality } from '../roster'
 
-export type Page = 'attendance' | 'courses' | 'badges'
+export type Page = 'timetable' | 'attendance' | 'courses' | 'badges'
 
 const destinations: { page: Page; label: string; icon: ReactNode }[] = [
+  { page: 'timetable', label: 'Timetable', icon: <CalendarClock size={19} /> },
   { page: 'attendance', label: 'Attendance', icon: <LayoutGrid size={19} /> },
   { page: 'courses', label: 'Courses', icon: <BookMarked size={19} /> },
 ]

@@ -3,6 +3,7 @@ import { CheckCircle2, Plus, Printer, Upload, X } from 'lucide-react'
 import { AppShell, type Page } from './components/AppShell'
 import { AttendancePage } from './components/AttendancePage'
 import { CoursesPage } from './components/CoursesPage'
+import { TimetablePage } from './components/TimetablePage'
 import { SpecialityPicker } from './components/SpecialityPicker'
 import { CreateSessionModal } from './components/modals/CreateSessionModal'
 import { ImportRosterModal } from './components/modals/ImportRosterModal'
@@ -22,12 +23,12 @@ const BadgePage = lazy(() => import('./components/badges/BadgePage'))
 function App() {
   const [sessions, setSessions] = useState<AttendanceSession[]>(loadSessions)
   const [courses, setCourses] = useState<Course[]>(loadCourses)
-  // Held here so the Courses screen can refuse to delete a course a cell still
-  // points at. Read-only for now — the grid that writes it arrives next, and
-  // naming a setter nothing calls would fail `noUnusedLocals`.
-  const [entries] = useState<TimetableEntry[]>(loadTimetable)
+  // Held here, not in TimetablePage, because the Courses screen reads it too —
+  // it refuses to delete a course a cell still points at.
+  const [entries, setEntries] = useState<TimetableEntry[]>(loadTimetable)
   const [speciality, setSpeciality] = useState<Speciality>('1MAUT')
-  const [page, setPage] = useState<Page>('attendance')
+  // The timetable is where a teaching day starts, and attendance is one tap away.
+  const [page, setPage] = useState<Page>('timetable')
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [createOpen, setCreateOpen] = useState(false)
   const [importOpen, setImportOpen] = useState(false)
@@ -106,13 +107,18 @@ function App() {
     <AppShell page={page} onPageChange={setPage} speciality={speciality}>
       <div className="page-title-row">
         <div>
-          <p className="eyebrow">{page === 'courses' ? 'Course catalogue' : showBadges ? 'Identity cards' : 'Classroom attendance'}</p>
-          <h1>{page === 'courses' ? 'The courses you teach.' : showBadges ? 'Student QR badges' : 'Every student, accounted for.'}</h1>
-          <p className="page-subtitle">{page === 'courses'
-            ? 'Give each course a code and the classes it is taught to. The timetable and every export use that code.'
-            : showBadges
-              ? 'Print a unique badge for each student. Scan it during any course session.'
-              : 'Create a course session, mark each student present or absent, and review your class in real time.'}</p>
+          <p className="eyebrow">{page === 'timetable' ? 'Weekly schedule' : page === 'courses' ? 'Course catalogue' : showBadges ? 'Identity cards' : 'Classroom attendance'}</p>
+          <h1>{page === 'timetable' ? 'Your week, slot by slot.' : page === 'courses' ? 'The courses you teach.' : showBadges ? 'Student QR badges' : 'Every student, accounted for.'}</h1>
+          {/* Four deep and at its limit. A fifth page moves this copy into a
+              Record<Page, …> beside `destinations`; with four that would cost
+              more indirection than it saves. */}
+          <p className="page-subtitle">{page === 'timetable'
+            ? 'Six slots a day, Sunday to Thursday. Assign a course to a cell once and it repeats every week.'
+            : page === 'courses'
+              ? 'Give each course a code and the classes it is taught to. The timetable and every export use that code.'
+              : showBadges
+                ? 'Print a unique badge for each student. Scan it during any course session.'
+                : 'Create a course session, mark each student present or absent, and review your class in real time.'}</p>
         </div>
         {showBadges && <button className="button button-primary page-action" onClick={() => window.print()}><Printer size={18} /><span className="page-action-label">Print badges</span></button>}
         {page === 'attendance' && <div className="page-actions">
@@ -125,7 +131,17 @@ function App() {
           </div>}
       </div>
 
-      <SpecialityPicker speciality={speciality} onChange={setSpeciality} progress={showBadges ? undefined : progress} />
+      {/* Hidden on the timetable: that grid is global, so a class filter there
+          would promise filtering it does not do. */}
+      {page !== 'timetable' && <SpecialityPicker speciality={speciality} onChange={setSpeciality} progress={showBadges ? undefined : progress} />}
+
+      {page === 'timetable' && <TimetablePage
+        entries={entries}
+        courses={courses}
+        onChange={setEntries}
+        onToast={setToast}
+        onGoToCourses={() => setPage('courses')}
+      />}
 
       {showBadges && <Suspense fallback={null}><BadgePage speciality={speciality} students={classStudents} /></Suspense>}
 

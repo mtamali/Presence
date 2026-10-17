@@ -33,6 +33,18 @@ button:disabled { cursor: not-allowed; }
    would land UNDER 44px set it explicitly to var(--tap) in their own module. */
 :where(button, select, input[type="date"], input[type="time"]) { min-height: var(--tap); }
 
+/* Removed from the page but kept in the accessibility tree. Not `font-size: 0`,
+   which is inherited by children, and not `display: none`, which is not read. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: .01ms !important;

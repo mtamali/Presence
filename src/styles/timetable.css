@@ -73,3 +73,150 @@
   .course-row-main > span { font-size: 13px; }
   .page-footer-action { justify-content: start; }
 }
+
+/* ---- Type badge ---------------------------------------------------------- */
+
+.type-badge {
+  min-width: 30px;
+  height: 20px;
+  padding: 0 5px;
+  border-radius: 5px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .02em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+.type-cr { background: #e9f1fb; color: #3f6aa8; }
+.type-td { background: #eaf4ef; color: #2f7c5f; }
+.type-tp { background: #fdf1e6; color: #a4702f; }
+
+/* ---- Segmented control --------------------------------------------------- */
+
+.segmented { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-2); }
+.segmented button {
+  min-height: var(--tap);
+  padding: var(--space-2) var(--space-1);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  display: grid;
+  gap: 1px;
+  text-align: center;
+}
+.segmented strong { font: 800 13px var(--font-display); color: var(--ink); letter-spacing: -.02em; }
+.segmented span { font-size: 9px; color: var(--muted); }
+.segmented button[aria-pressed="true"] { background: var(--teal); border-color: var(--teal); }
+.segmented button[aria-pressed="true"] strong,
+.segmented button[aria-pressed="true"] span { color: #fff; }
+
+.modal-empty { font-size: 13px; line-height: 1.6; color: var(--muted); margin: var(--space-3) 0 0; }
+
+/* A select inside a form field is a field-width control, so it has to fill its
+   wrapper — otherwise only the option text's own width is clickable and the
+   chevron sits adrift from it. The roster toolbar's copy stays content-width on
+   purpose, so this is scoped to .field rather than fixing .select-wrap itself.
+   The type matches `.field input`: these two sit one above the other. */
+.field .select-wrap select { flex: 1; width: 100%; font-size: 12px; color: #274451; }
+
+/* ---- Day strip (phone) --------------------------------------------------- */
+
+.day-strip { display: flex; gap: var(--space-2); overflow-x: auto; padding-bottom: var(--space-2); margin-bottom: var(--space-3); }
+.day-chip {
+  min-height: var(--tap);
+  padding: 0 var(--space-4);
+  flex: 1 0 auto;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--muted);
+  font: 700 12px var(--font-body);
+}
+.day-chip[aria-current="true"] { background: var(--teal); border-color: var(--teal); color: #fff; }
+
+/* ---- The table ----------------------------------------------------------- */
+
+.timetable { display: grid; gap: 6px; }
+.timetable-times { display: none; }
+
+/* One day at a time on phone: every column is hidden, and the strip's choice
+   adds itself back. */
+.timetable-day { display: none; }
+.timetable-day[data-active="true"] { display: grid; gap: var(--space-2); }
+.timetable-day-head { display: none; }
+
+.timetable-cell {
+  display: grid;
+  gap: 5px;
+  justify-items: start;
+  text-align: left;
+  min-height: var(--tap);
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+.timetable-cell[data-filled="false"] { background: var(--idle-bg); border-style: dashed; }
+.cell-time { font-size: 10px; font-weight: 700; color: var(--idle-fg); letter-spacing: .02em; }
+.cell-head { display: flex; align-items: center; gap: var(--space-2); }
+.cell-code { font: 800 13px var(--font-display); color: var(--ink); letter-spacing: -.02em; }
+.cell-name { font-size: 12px; color: var(--ink); overflow-wrap: anywhere; }
+.cell-room { font-size: 11px; color: var(--muted); }
+.cell-assign { display: flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 700; color: var(--teal); }
+
+/* ========================================================================
+   48rem — the whole week at once. Days become columns; the time column is
+   shared. The `display: grid` here has the same specificity as the
+   `display: none` above and simply comes later, so it wins; the
+   `[data-active]` rule only ever adds a column, never removes one.
+   ===================================================================== */
+@media (min-width: 48rem) {
+  .day-strip { display: none; }
+
+  .timetable { grid-template-columns: 58px repeat(5, minmax(0, 1fr)); align-items: start; }
+  /* Both column types repeat the same row sizing, which is what keeps slot 3 of
+     Tuesday level with slot 3 of the time column — they are sibling grids, not
+     one grid, because `display: contents` would break the rules above. */
+  .timetable-times,
+  .timetable-day { display: grid; gap: 6px; grid-auto-rows: 72px; }
+  .timetable-times { text-align: right; }
+  .timetable-times > span { display: grid; align-content: center; font-size: 10px; font-weight: 700; color: var(--muted); padding-right: 4px; }
+  .timetable-times small { font-size: 9px; color: var(--idle-fg); font-weight: 600; }
+
+  .timetable-day-head,
+  .timetable-times .timetable-day-head {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 30px;
+    grid-row: auto;
+    font: 800 11px var(--font-display);
+    color: var(--muted);
+    letter-spacing: .04em;
+    text-transform: uppercase;
+  }
+  .timetable-day[data-today="true"] .timetable-day-head { color: var(--teal-strong); }
+  .timetable-day[data-today="true"] .timetable-cell { border-color: #cce4e3; }
+
+  .timetable-times,
+  .timetable-day { grid-template-rows: 30px repeat(6, 72px); grid-auto-rows: 72px; }
+
+  .timetable-cell { padding: var(--space-2); gap: 4px; align-content: start; }
+  /* A five-column cell cannot carry five pieces of text legibly, so the name,
+     room and time drop out here. Tapping the cell shows them. */
+  .cell-time, .cell-name, .cell-room { display: none; }
+  .cell-code { font-size: 12px; }
+  .cell-assign { font-size: 10px; }
+}
+
+/* ========================================================================
+   64rem — the grid has room to breathe.
+   ===================================================================== */
+@media (min-width: 64rem) {
+  .timetable { grid-template-columns: 64px repeat(5, minmax(0, 1fr)); gap: 8px; }
+  .timetable-times,
+  .timetable-day { gap: 8px; }
+  .timetable-cell { padding: var(--space-3); }
+}
