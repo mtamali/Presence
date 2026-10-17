@@ -1,8 +1,9 @@
 /* App chrome: sidebar/nav, topbar, page header, speciality strip, shared controls. */
 
 /* ---- Shell ---------------------------------------------------------------
-   Phone: the sidebar is a two-column top bar (brand | nav). From 48rem it
-   becomes a real sidebar with labels; 90rem only widens it. The old 71px
+   Phone: the sidebar is a brand-only top bar; navigation lives in the fixed
+   bottom tab bar below. From 48rem it becomes a real sidebar with labels and
+   the tab bar folds into it as a column; 90rem only widens it. The old 71px
    icon-rail tier is not reproduced — see task-9-report.md. */
 
 .app-shell { min-height: 100vh; display: block; }
@@ -12,16 +13,16 @@
   flex: none;
   min-height: 0;
   height: auto;
-  background: #112c3b;
+  background: var(--navy);
   color: #e8f0f2;
   padding: 13px 16px;
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 7px 20px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
   position: static;
 }
 
-.brand { display: flex; align-items: center; gap: 12px; padding: 0; grid-row: 1; grid-column: 1; }
+.brand { display: flex; align-items: center; gap: 12px; padding: 0; }
 .brand-mark { width: 35px; height: 35px; border-radius: 12px; background: #e3f5f2; color: #0c7377; display: grid; place-items: center; }
 .brand strong { font-size: 16px; letter-spacing: -.06em; display: block; line-height: 1.1; }
 .brand span { display: none; color: #94aeb8; font-size: 11px; margin-top: 4px; }
@@ -37,47 +38,49 @@
   margin-bottom: 10px;
 }
 
-.main-nav { display: flex; gap: 4px; grid-row: 1; grid-column: 2; justify-content: flex-end; }
-.class-nav { display: none; gap: 4px; }
+/* ---- Navigation ----------------------------------------------------------
+   One <nav class="tabbar"> serves both layouts: a fixed bottom bar within
+   thumb reach on phone, a column inside the sidebar from 48rem. The markup is
+   rendered once; only CSS changes. Labels are real text that is visually
+   hidden on phone — never collapsed to font-size 0, which left them announced
+   by screen readers at zero size and with no box for a focus ring. */
 
-.nav-item, .class-item {
+.tabbar {
+  position: fixed;
+  inset: auto 0 0 0;
+  z-index: 10;
+  display: flex;
+  background: var(--navy);
+  border-top: 1px solid #23485a;
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+.tabbar button {
+  flex: 1;
+  min-height: var(--tap);
+  display: grid;
+  place-items: center;
+  gap: var(--space-1);
   border: 0;
   background: none;
   color: #a9bec8;
-  text-align: left;
-  display: flex;
-  align-items: center;
-  width: 100%;
   border-radius: 10px;
-}
-/* Icon-only in the phone top bar. font-size:0 suppresses the label without
-   removing it from the accessibility tree; the svg is sized by its own
-   attributes, so it is unaffected. Task 10 drops this when it replaces the
-   nav with a bottom tab bar. */
-.nav-item {
-  gap: 13px;
-  padding: 0;
   font-weight: 600;
-  font-size: 0;
-  width: var(--tap);
-  height: var(--tap);
-  justify-content: center;
 }
-.nav-item svg { flex: none; }
-.nav-item:hover, .class-item:hover { background: #193c4d; color: #fff; }
-.nav-item.active { background: #1d4653; color: #f3ffff; }
-.nav-item.active svg { color: #68cfca; }
+.tabbar button svg { flex: none; }
+.tabbar button:hover { color: #fff; }
+.tabbar button[aria-current="page"] { color: #68cfca; }
 
-/* Hidden alongside the .class-nav it labels — the original left it visible in
-   the phone top bar, captioning a list that is not there. */
-.class-caption { display: none; align-items: center; justify-content: space-between; margin: 34px 0 9px; }
-.class-caption span { color: #6f919e; }
-.class-item { gap: 10px; padding: 11px 12px; }
-.class-item.selected { background: #204651; color: #fff; }
-.class-code { color: inherit; font-size: 12px; font-weight: 800; letter-spacing: .025em; }
-.class-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; flex: 1; opacity: .72; }
-.class-count { font-size: 11px; color: #97b1b9; background: #254656; padding: 2px 6px; border-radius: 5px; }
-.class-item.selected .class-count { background: #357174; color: #d8f9f6; }
+.tabbar-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
 
 .sidebar-bottom {
   display: none;
@@ -112,7 +115,14 @@
 
 /* ---- Page header --------------------------------------------------------- */
 
-.content-wrap { max-width: 1450px; margin: auto; padding: 25px 17px; }
+/* The fixed tab bar overlays the end of the page on phone, so reserve its
+   height plus the safe area — otherwise the last roster row is unreachable.
+   The 48rem tier resets this when the bar stops being fixed. */
+.content-wrap {
+  max-width: 1450px;
+  margin: auto;
+  padding: 25px 17px calc(var(--tap) + env(safe-area-inset-bottom, 0) + var(--space-5));
+}
 
 .page-title-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 25px; margin-bottom: 23px; }
 .page-title-row h1 { font-size: 21px; letter-spacing: -.055em; line-height: 1.22; margin-bottom: 8px; font-weight: 800; }
@@ -170,6 +180,12 @@
 .search-field input { border: 0; outline: 0; width: 100%; min-width: 0; font-size: 11px; color: #294350; }
 .search-field input::placeholder { color: #9faeb5; }
 
+/* The inner control suppresses its own ring because the wrapper draws the
+   border, so the wrapper has to take the focus ring — otherwise these two have
+   no visible focus indicator at all. */
+.search-field:focus-within,
+.select-wrap:focus-within { outline: 3px solid #8adad8; outline-offset: 2px; }
+
 .select-wrap { position: relative; border: 1px solid #e1e8eb; border-radius: 7px; display: flex; align-items: center; }
 .select-wrap select { appearance: none; border: 0; background: transparent; padding: 0 30px 0 12px; font-size: 11px; color: #365260; font-weight: 600; outline: 0; }
 .select-wrap svg { position: absolute; right: 9px; pointer-events: none; color: #90a0a8; }
@@ -218,7 +234,8 @@
 
 .toast {
   position: fixed;
-  bottom: 24px;
+  /* Clear of the fixed tab bar on phone; 48rem drops it back to the corner. */
+  bottom: calc(var(--tap) + env(safe-area-inset-bottom, 0) + var(--space-3));
   right: 24px;
   z-index: 40;
   max-width: calc(100% - 48px);
@@ -249,23 +266,52 @@
     padding: 27px 16px 24px;
     display: flex;
     flex-direction: column;
+    align-items: stretch;
     gap: 0;
     position: sticky;
     top: 0;
   }
 
-  .brand { padding: 3px 12px 35px; grid-row: auto; grid-column: auto; }
+  .brand { padding: 3px 12px 35px; }
   .brand-mark { width: 41px; height: 41px; }
   .brand strong { font-size: 20px; }
   .brand span { display: block; }
 
   .sidebar-caption { display: block; }
-  .class-caption { display: flex; }
-  .class-nav { display: grid; }
   .sidebar-bottom { display: flex; }
 
-  .main-nav { display: grid; grid-row: auto; grid-column: auto; justify-content: normal; }
-  .nav-item { padding: 12px 13px; width: 100%; height: auto; font-size: 13px; justify-content: flex-start; }
+  /* The bar folds into the sidebar: static, vertical, labels back in flow. */
+  .tabbar {
+    position: static;
+    flex-direction: column;
+    gap: 4px;
+    background: none;
+    border-top: 0;
+    padding-bottom: 0;
+  }
+  .tabbar button {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 13px;
+    padding: 12px 13px;
+    font-size: 13px;
+    text-align: left;
+  }
+  .tabbar button:hover { background: #193c4d; }
+  .tabbar button[aria-current="page"] { background: #1d4653; color: #f3ffff; }
+  .tabbar button[aria-current="page"] svg { color: #68cfca; }
+
+  .tabbar-label {
+    position: static;
+    width: auto;
+    height: auto;
+    margin: 0;
+    overflow: visible;
+    clip-path: none;
+  }
+
+  .toast { bottom: 24px; }
 
   .topbar { height: 72px; padding: 0 28px; }
   .topbar-date { display: flex; }
