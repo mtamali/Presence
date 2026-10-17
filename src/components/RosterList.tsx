@@ -24,7 +24,12 @@ function statusFor(session: AttendanceSession, student: Student) {
  */
 export function RosterList({ session, students, search, filter, onSearch, onFilter, onMark, onCloseSession }: {
   session: AttendanceSession
-  /** The whole class. Search and filter are applied here, not by the caller. */
+  /**
+   * The session's membership, in `session.rosterIds` order — not the live
+   * class, or the list would disagree with the stat totals and the CSV export
+   * after a roster import. Search and filter are applied here, not by the
+   * caller.
+   */
   students: Student[]
   search: string
   filter: StatusFilter

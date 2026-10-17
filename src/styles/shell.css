@@ -152,6 +152,10 @@
 .button-light { background: white; border-color: #dfe6ea; color: #344f5d; }
 .button-light:hover { background: #f6f9f9; }
 
+/* The attendance page carries two title-row actions. Wrapping them keeps
+   .page-title-row's space-between pinning the title to the left edge. */
+.page-actions { display: flex; gap: var(--space-2); flex: none; }
+
 /* Icon-only on phone (the label is suppressed, not removed, so it stays in
    the accessibility tree); full button with its label from 48rem. */
 .page-action {
