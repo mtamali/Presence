@@ -16,7 +16,11 @@ export function StatGrid({ stats }: { stats: Stats }) {
   )
 }
 
-function Stat({ label, value, icon, tone }: { label: string; value: number; icon: ReactNode; tone: string }) {
+/**
+ * One tile. Exported because the analytics screen reuses it for figures that
+ * are not counts — hence ReactNode rather than number for the value.
+ */
+export function Stat({ label, value, icon, tone }: { label: string; value: ReactNode; icon: ReactNode; tone: string }) {
   return (
     <div className="stat-card">
       <span className={`stat-icon ${tone}`}>{icon}</span>

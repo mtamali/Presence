@@ -1,21 +1,55 @@
 import type { ReactNode } from 'react'
-import { BookMarked, CalendarClock, CalendarDays, GraduationCap, LayoutGrid, QrCode, ScanLine, ShieldCheck } from 'lucide-react'
+import { BarChart3, BookMarked, CalendarClock, CalendarDays, GraduationCap, LayoutGrid, QrCode, ScanLine, ShieldCheck } from 'lucide-react'
 import { BADGES_ENABLED } from '../config'
 import { formatDate, localToday } from '../format'
 import type { Speciality } from '../roster'
 
-export type Page = 'timetable' | 'attendance' | 'courses' | 'badges'
+export type Page = 'timetable' | 'attendance' | 'courses' | 'analytics' | 'badges'
 
 const destinations: { page: Page; label: string; icon: ReactNode }[] = [
   { page: 'timetable', label: 'Timetable', icon: <CalendarClock size={19} /> },
   { page: 'attendance', label: 'Attendance', icon: <LayoutGrid size={19} /> },
   { page: 'courses', label: 'Courses', icon: <BookMarked size={19} /> },
+  { page: 'analytics', label: 'Analytics', icon: <BarChart3 size={19} /> },
 ]
 
 // Badges are dormant. The destination returns when BADGES_ENABLED flips; until
 // then the flag's literal `false` lets the bundler drop this branch.
 if (BADGES_ENABLED) {
   destinations.push({ page: 'badges', label: 'Student badges', icon: <QrCode size={19} /> })
+}
+
+/**
+ * The title block each page carries. It lives beside `destinations` because
+ * both are per-page metadata — and because at five pages the nested ternaries
+ * this replaces in App.tsx had stopped being readable.
+ */
+export const pageCopy: Record<Page, { eyebrow: string; title: string; subtitle: string }> = {
+  timetable: {
+    eyebrow: 'Weekly schedule',
+    title: 'Your week, slot by slot.',
+    subtitle: 'Six slots a day, Sunday to Thursday. Assign a course to a cell once and it repeats every week.',
+  },
+  attendance: {
+    eyebrow: 'Classroom attendance',
+    title: 'Every student, accounted for.',
+    subtitle: 'Create a course session, mark each student present or absent, and review your class in real time.',
+  },
+  courses: {
+    eyebrow: 'Course catalogue',
+    title: 'The courses you teach.',
+    subtitle: 'Give each course a code and the classes it is taught to. The timetable and every export use that code.',
+  },
+  analytics: {
+    eyebrow: 'Attendance analytics',
+    title: 'Where the gaps are.',
+    subtitle: 'Attendance by class, by course and by student across every session, worst first.',
+  },
+  badges: {
+    eyebrow: 'Identity cards',
+    title: 'Student QR badges',
+    subtitle: 'Print a unique badge for each student. Scan it during any course session.',
+  },
 }
 
 export function AppShell({ page, onPageChange, speciality, children }: {

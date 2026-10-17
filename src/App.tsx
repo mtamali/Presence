@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
 import { CheckCircle2, Plus, Printer, Upload, X } from 'lucide-react'
-import { AppShell, type Page } from './components/AppShell'
+import { AppShell, pageCopy, type Page } from './components/AppShell'
+import { AnalyticsPage } from './components/AnalyticsPage'
 import { AttendancePage } from './components/AttendancePage'
 import { CoursesPage } from './components/CoursesPage'
 import { TimetablePage } from './components/TimetablePage'
@@ -49,6 +50,7 @@ function App() {
   // With badges retired the flag pins this to false, but the branch is kept so
   // flipping BADGES_ENABLED restores the screen without further edits.
   const showBadges = BADGES_ENABLED && page === 'badges'
+  const copy = pageCopy[page]
   // Inactive students are kept for the import merge and for past sessions, but
   // never offered for marking.
   const storedRoster = useMemo(() => getRoster(speciality), [speciality, rosterVersion])
@@ -131,18 +133,11 @@ function App() {
     <AppShell page={page} onPageChange={setPage} speciality={speciality}>
       <div className="page-title-row">
         <div>
-          <p className="eyebrow">{page === 'timetable' ? 'Weekly schedule' : page === 'courses' ? 'Course catalogue' : showBadges ? 'Identity cards' : 'Classroom attendance'}</p>
-          <h1>{page === 'timetable' ? 'Your week, slot by slot.' : page === 'courses' ? 'The courses you teach.' : showBadges ? 'Student QR badges' : 'Every student, accounted for.'}</h1>
-          {/* Four deep and at its limit. A fifth page moves this copy into a
-              Record<Page, …> beside `destinations`; with four that would cost
-              more indirection than it saves. */}
-          <p className="page-subtitle">{page === 'timetable'
-            ? 'Six slots a day, Sunday to Thursday. Assign a course to a cell once and it repeats every week.'
-            : page === 'courses'
-              ? 'Give each course a code and the classes it is taught to. The timetable and every export use that code.'
-              : showBadges
-                ? 'Print a unique badge for each student. Scan it during any course session.'
-                : 'Create a course session, mark each student present or absent, and review your class in real time.'}</p>
+          {/* The fifth page is what tipped these three from ternaries into the
+              Record beside `destinations`, as the note here used to predict. */}
+          <p className="eyebrow">{copy.eyebrow}</p>
+          <h1>{copy.title}</h1>
+          <p className="page-subtitle">{copy.subtitle}</p>
         </div>
         {showBadges && <button className="button button-primary page-action" onClick={() => window.print()}><Printer size={18} /><span className="page-action-label">Print badges</span></button>}
         {page === 'attendance' && <div className="page-actions">
@@ -155,9 +150,10 @@ function App() {
           </div>}
       </div>
 
-      {/* Hidden on the timetable: that grid is global, so a class filter there
-          would promise filtering it does not do. */}
-      {page !== 'timetable' && <SpecialityPicker speciality={speciality} onChange={setSpeciality} progress={showBadges ? undefined : progress} />}
+      {/* Hidden on the timetable and on analytics: both show every class at
+          once, so a class filter there would promise filtering it does not do.
+          Analytics carries its own filter, inside the one list that needs it. */}
+      {page !== 'timetable' && page !== 'analytics' && <SpecialityPicker speciality={speciality} onChange={setSpeciality} progress={showBadges ? undefined : progress} />}
 
       {page === 'timetable' && <TimetablePage
         entries={entries}
@@ -171,6 +167,11 @@ function App() {
       />}
 
       {showBadges && <Suspense fallback={null}><BadgePage speciality={speciality} students={classStudents} /></Suspense>}
+
+      {/* Every session, not `classSessions`: this screen compares the classes
+          against each other, so narrowing it to one would empty three of its
+          four views. */}
+      {page === 'analytics' && <AnalyticsPage sessions={sessions} rosterVersion={rosterVersion} />}
 
       {page === 'courses' && <CoursesPage
         speciality={speciality}

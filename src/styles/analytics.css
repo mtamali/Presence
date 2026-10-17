@@ -1,0 +1,97 @@
+/* The analytics screen: overall tiles, a breakdown switch, and rate rows. */
+
+/* Panel chrome matching .roster-panel. Repeated rather than shared because
+   this screen owns its own styles, the way session.css and timetable.css do. */
+.analytics-panel {
+  border: 1px solid #e3e9ec;
+  border-radius: 13px;
+  background: white;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.analytics-head { padding: 18px; border-bottom: 1px solid #edf1f2; }
+.analytics-head h3 { font-size: 15px; letter-spacing: -.035em; margin: 0 0 4px; }
+.analytics-head p { color: #8a9aa2; font-size: 11px; margin: 0; }
+
+.analytics-tools { display: flex; flex-direction: column; gap: 8px; margin-top: 17px; }
+
+/* Stacked, the wrapper stretches to the card while the select keeps its option
+   width — leaving two thirds of a full-width control dead to the touch, with
+   the chevron adrift at the far end. `flex` fills it; no `width: 100%`, because
+   at 48rem the row stops stretching the wrapper and the select must go back to
+   sizing itself. Same defect `.field .select-wrap select` fixes in
+   timetable.css, scoped the same way rather than changing the shared rule. */
+.analytics-tools .select-wrap select { flex: 1; min-width: 0; }
+
+/* ---- Breakdown switch ----------------------------------------------------
+   Equal thirds across the card. Three labels are what fits 375px, which is
+   why the overall figures are pinned above as tiles rather than becoming a
+   fourth chip in here. */
+
+.segmented { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 3px; background: #f1f5f6; border-radius: 9px; }
+.segmented button {
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: #5c7281;
+  font: 700 11px var(--font-body);
+  padding: 0 6px;
+}
+.segmented button[aria-pressed="true"] { background: white; color: var(--teal); box-shadow: 0 1px 3px rgba(19, 44, 59, .12); }
+
+/* ---- Rate rows ----------------------------------------------------------- */
+
+.rate-list { list-style: none; margin: 0; padding: 0; }
+.rate-row { padding: 14px 18px; border-bottom: 1px solid #f0f3f4; }
+.rate-row:last-child { border-bottom: 0; }
+
+.rate-row-head { display: flex; align-items: start; justify-content: space-between; gap: 12px; }
+
+.rate-label { min-width: 0; }
+.rate-label strong { display: flex; align-items: center; gap: 6px; font-size: 13px; letter-spacing: -.02em; color: var(--ink); }
+.rate-label small { display: block; color: #8fa0a8; font-size: 11px; margin-top: 2px; }
+/* The qualifier beside a name reads as a chip, not as emphasis. */
+.rate-label em {
+  font: 800 9px var(--font-body);
+  font-style: normal;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--idle-fg);
+  background: var(--idle-bg);
+  border-radius: 4px;
+  padding: 2px 5px;
+}
+
+.rate-figure { flex: none; text-align: right; }
+.rate-figure strong { display: block; font: 800 15px var(--font-display); letter-spacing: -.04em; }
+.rate-figure small { display: block; color: #8fa0a8; font-size: 10px; }
+.rate-none { color: #a9b5bb; font-size: 11px; }
+
+/* The bar carries the comparison between rows; the figure carries the detail. */
+.rate-bar { display: block; height: 5px; border-radius: 3px; background: #eef2f3; margin-top: 10px; overflow: hidden; }
+.rate-bar span { display: block; height: 100%; border-radius: 3px; transition: width .25s ease; }
+
+/* Banded on the row, so the figure and the bar can never disagree. */
+.rate-row[data-band="ok"] .rate-bar span { background: #0c9897; }
+.rate-row[data-band="warn"] .rate-bar span { background: #d9a13b; }
+.rate-row[data-band="bad"] .rate-bar span { background: #cc7367; }
+.rate-row[data-band="ok"] .rate-figure strong { color: #0b7f74; }
+.rate-row[data-band="warn"] .rate-figure strong { color: #a9761f; }
+.rate-row[data-band="bad"] .rate-figure strong { color: #b85d50; }
+
+/* ---- Per-type split, on courses taught as more than one of CR/TD/TP ------ */
+
+.rate-types { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+.rate-type { display: inline-flex; align-items: center; gap: 5px; }
+.rate-type small { color: #6d7d87; font-size: 11px; font-weight: 700; }
+
+/* ========================================================================
+   48rem — the head and its tools share one line.
+   ===================================================================== */
+@media (min-width: 48rem) {
+  .analytics-head { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 18px 23px; }
+  .analytics-tools { flex-direction: row; align-items: center; margin-top: 0; }
+  .segmented { grid-template-columns: repeat(3, minmax(82px, 1fr)); }
+  .rate-row { padding: 15px 23px; }
+}
