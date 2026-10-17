@@ -1,0 +1,75 @@
+/* Courses, class tags, and the weekly timetable grid. */
+
+/* ---- Class tags ---------------------------------------------------------- */
+
+.class-tags { display: inline-flex; flex-wrap: wrap; gap: 4px; }
+.class-tag {
+  height: 19px;
+  padding: 0 6px;
+  border-radius: 5px;
+  background: #eef3f5;
+  color: #4f6975;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .02em;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* ---- Speciality chips in a form ------------------------------------------ */
+
+.chip-row { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.chip-toggle {
+  min-height: var(--tap);
+  padding: 0 var(--space-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--muted);
+  font: 700 12px var(--font-body);
+  letter-spacing: -.01em;
+}
+.chip-toggle[aria-pressed="true"] { background: var(--teal); border-color: var(--teal); color: #fff; }
+
+/* ---- Course list --------------------------------------------------------- */
+
+.course-list { list-style: none; display: grid; gap: var(--space-2); margin: 0; padding: 0; }
+.course-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  min-height: var(--tap);
+}
+.course-row-main { display: grid; gap: 3px; min-width: 0; flex: 1; }
+.course-row-main strong { font: 800 13px var(--font-display); color: var(--ink); letter-spacing: -.02em; }
+.course-row-main > span { font-size: 12px; color: var(--muted); overflow-wrap: anywhere; }
+.course-row-actions { display: flex; gap: var(--space-1); flex: none; }
+
+.icon-button {
+  width: var(--tap);
+  height: var(--tap);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--muted);
+  display: grid;
+  place-items: center;
+}
+.icon-button:hover { color: var(--teal); border-color: #cfe3e4; }
+
+.page-footer-action { margin-top: var(--space-3); display: grid; }
+
+/* ========================================================================
+   48rem — the course row can afford one line, and the add button stops
+   spanning the full width.
+   ===================================================================== */
+@media (min-width: 48rem) {
+  .course-row { padding: var(--space-3) var(--space-4); }
+  .course-row-main { grid-auto-flow: column; align-items: center; gap: var(--space-4); grid-template-columns: 90px minmax(0, 1fr) auto; }
+  .course-row-main > span { font-size: 13px; }
+  .page-footer-action { justify-content: start; }
+}

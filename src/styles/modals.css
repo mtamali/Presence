@@ -55,6 +55,8 @@
 }
 .modal-note svg { color: #0b898a; flex: none; }
 
+.modal-error { margin: var(--space-2) 0 0; font-size: 12px; line-height: 1.5; color: #a4423c; }
+
 /* Full-width stacked buttons on phone — single-column grid puts the primary
    action last, nearest the thumb. They pair up and right-align from 48rem. */
 .modal-actions { border-top: 1px solid #e9eff0; padding-top: 20px; display: grid; gap: var(--space-2); }

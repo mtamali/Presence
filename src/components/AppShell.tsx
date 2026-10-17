@@ -1,13 +1,14 @@
 import type { ReactNode } from 'react'
-import { CalendarDays, GraduationCap, LayoutGrid, QrCode, ScanLine, ShieldCheck } from 'lucide-react'
+import { BookMarked, CalendarDays, GraduationCap, LayoutGrid, QrCode, ScanLine, ShieldCheck } from 'lucide-react'
 import { BADGES_ENABLED } from '../config'
 import { formatDate, localToday } from '../format'
 import type { Speciality } from '../roster'
 
-export type Page = 'attendance' | 'badges'
+export type Page = 'attendance' | 'courses' | 'badges'
 
 const destinations: { page: Page; label: string; icon: ReactNode }[] = [
   { page: 'attendance', label: 'Attendance', icon: <LayoutGrid size={19} /> },
+  { page: 'courses', label: 'Courses', icon: <BookMarked size={19} /> },
 ]
 
 // Badges are dormant. The destination returns when BADGES_ENABLED flips; until
@@ -22,7 +23,9 @@ export function AppShell({ page, onPageChange, speciality, children }: {
   speciality: Speciality
   children: ReactNode
 }) {
-  const title = page === 'badges' ? 'Student badges' : 'Attendance'
+  // A lookup rather than a ternary chain: the label a destination already
+  // carries is the same string the crumb wants.
+  const title = destinations.find(item => item.page === page)?.label || 'Attendance'
 
   return (
     <div className="app-shell">

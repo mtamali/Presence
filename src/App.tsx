@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
 import { CheckCircle2, Plus, Printer, Upload, X } from 'lucide-react'
 import { AppShell, type Page } from './components/AppShell'
 import { AttendancePage } from './components/AttendancePage'
+import { CoursesPage } from './components/CoursesPage'
 import { SpecialityPicker } from './components/SpecialityPicker'
 import { CreateSessionModal } from './components/modals/CreateSessionModal'
 import { ImportRosterModal } from './components/modals/ImportRosterModal'
@@ -10,6 +11,8 @@ import {
   activeRosterIds, createSession, loadSessions, saveSessions, sessionStats,
   type AttendanceSession, type SessionDetails,
 } from './sessions'
+import { loadCourses, saveCourses, type Course } from './courses'
+import { loadTimetable, saveTimetable, type TimetableEntry } from './timetable'
 import { BADGES_ENABLED } from './config'
 
 // Badge screens are dormant behind BADGES_ENABLED. Importing them lazily keeps
@@ -18,6 +21,11 @@ const BadgePage = lazy(() => import('./components/badges/BadgePage'))
 
 function App() {
   const [sessions, setSessions] = useState<AttendanceSession[]>(loadSessions)
+  const [courses, setCourses] = useState<Course[]>(loadCourses)
+  // Held here so the Courses screen can refuse to delete a course a cell still
+  // points at. Read-only for now — the grid that writes it arrives next, and
+  // naming a setter nothing calls would fail `noUnusedLocals`.
+  const [entries] = useState<TimetableEntry[]>(loadTimetable)
   const [speciality, setSpeciality] = useState<Speciality>('1MAUT')
   const [page, setPage] = useState<Page>('attendance')
   const [selectedId, setSelectedId] = useState<string | null>(null)
@@ -29,6 +37,8 @@ function App() {
   const [rosterVersion, setRosterVersion] = useState(0)
 
   useEffect(() => saveSessions(sessions), [sessions])
+  useEffect(() => saveCourses(courses), [courses])
+  useEffect(() => saveTimetable(entries), [entries])
   useEffect(() => {
     if (!toast) return
     const timer = window.setTimeout(() => setToast(''), 4200)
@@ -96,15 +106,16 @@ function App() {
     <AppShell page={page} onPageChange={setPage} speciality={speciality}>
       <div className="page-title-row">
         <div>
-          <p className="eyebrow">{showBadges ? 'Identity cards' : 'Classroom attendance'}</p>
-          <h1>{showBadges ? 'Student QR badges' : 'Every student, accounted for.'}</h1>
-          <p className="page-subtitle">{showBadges
-            ? 'Print a unique badge for each student. Scan it during any course session.'
-            : 'Create a course session, mark each student present or absent, and review your class in real time.'}</p>
+          <p className="eyebrow">{page === 'courses' ? 'Course catalogue' : showBadges ? 'Identity cards' : 'Classroom attendance'}</p>
+          <h1>{page === 'courses' ? 'The courses you teach.' : showBadges ? 'Student QR badges' : 'Every student, accounted for.'}</h1>
+          <p className="page-subtitle">{page === 'courses'
+            ? 'Give each course a code and the classes it is taught to. The timetable and every export use that code.'
+            : showBadges
+              ? 'Print a unique badge for each student. Scan it during any course session.'
+              : 'Create a course session, mark each student present or absent, and review your class in real time.'}</p>
         </div>
-        {showBadges
-          ? <button className="button button-primary page-action" onClick={() => window.print()}><Printer size={18} /><span className="page-action-label">Print badges</span></button>
-          : <div className="page-actions">
+        {showBadges && <button className="button button-primary page-action" onClick={() => window.print()}><Printer size={18} /><span className="page-action-label">Print badges</span></button>}
+        {page === 'attendance' && <div className="page-actions">
             {/* The roster is per class and must be reachable with no session
                 selected, so it lives beside the title, not in the roster panel.
                 The labels are clipped on phone, not dropped — they are each
@@ -116,19 +127,27 @@ function App() {
 
       <SpecialityPicker speciality={speciality} onChange={setSpeciality} progress={showBadges ? undefined : progress} />
 
-      {showBadges
-        ? <Suspense fallback={null}><BadgePage speciality={speciality} students={classStudents} /></Suspense>
-        : <AttendancePage
-          speciality={speciality}
-          sessions={classSessions}
-          selectedId={selectedId}
-          rosterVersion={rosterVersion}
-          onSelect={setSelectedId}
-          onCreateOpen={() => setCreateOpen(true)}
-          onImportOpen={() => setImportOpen(true)}
-          onReplace={replaceSession}
-          onToast={setToast}
-        />}
+      {showBadges && <Suspense fallback={null}><BadgePage speciality={speciality} students={classStudents} /></Suspense>}
+
+      {page === 'courses' && <CoursesPage
+        speciality={speciality}
+        courses={courses}
+        entries={entries}
+        onChange={setCourses}
+        onToast={setToast}
+      />}
+
+      {page === 'attendance' && <AttendancePage
+        speciality={speciality}
+        sessions={classSessions}
+        selectedId={selectedId}
+        rosterVersion={rosterVersion}
+        onSelect={setSelectedId}
+        onCreateOpen={() => setCreateOpen(true)}
+        onImportOpen={() => setImportOpen(true)}
+        onReplace={replaceSession}
+        onToast={setToast}
+      />}
 
       {createOpen && <CreateSessionModal speciality={speciality} onClose={() => setCreateOpen(false)} onCreate={handleCreate} />}
       {importOpen && <ImportRosterModal speciality={speciality} currentRoster={storedRoster} onClose={() => setImportOpen(false)} onApply={handleImport} />}
