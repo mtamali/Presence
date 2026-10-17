@@ -98,6 +98,7 @@ export function TimetablePage({ entries, courses, sessions, onChange, onToast, o
                 className="timetable-cell"
                 key={slot.index}
                 data-filled={entry ? 'true' : 'false'}
+                data-type={entry?.type}
                 onClick={() => setCell({ day: item.index, slot: slot.index, mode: entry ? 'start' : 'assign' })}
                 aria-label={`${item.label} slot ${slot.index}, ${slot.start} to ${slot.end} — ${
                   entry ? `${entry.courseCode} ${entry.type}` : 'empty, assign a course'}`}

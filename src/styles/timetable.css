@@ -223,3 +223,26 @@
   .timetable-day { gap: 8px; }
   .timetable-cell { padding: var(--space-3); }
 }
+
+/* ========================================================================
+   Cell hover — last in the file on purpose.
+
+   A hovered cell takes its own type's colour, so the week reads as CR / TD /
+   TP before any text is. `[data-type]` is set by TimetablePage; an empty cell
+   has none and falls back to the teal of its own "Assign" label.
+
+   This sits after the breakpoints because the `data-today` border above has
+   the same specificity (0,3,0) as `[data-type]:hover` — source order is what
+   decides, so moving this block up would cost today's column its highlight.
+   ===================================================================== */
+
+.timetable-cell { transition: background-color .13s ease, border-color .13s ease; }
+
+.timetable-cell[data-filled="false"]:hover { background: #eaf5f5; border-color: var(--teal); }
+.timetable-cell[data-type="CR"]:hover { background: #e9f1fb; border-color: #3f6aa8; }
+.timetable-cell[data-type="TD"]:hover { background: #eaf4ef; border-color: #2f7c5f; }
+.timetable-cell[data-type="TP"]:hover { background: #fdf1e6; border-color: #a4702f; }
+
+/* The badge wears the same tint the cell just took, so it would dissolve into
+   it; white keeps it a chip. */
+.timetable-cell:hover .type-badge { background: #fff; }
