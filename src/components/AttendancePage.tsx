@@ -36,13 +36,14 @@ export function AttendancePage({
 }) {
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState<StatusFilter>('all')
+  const [classFilter, setClassFilter] = useState<Speciality | 'all'>('all')
 
   const selectedSession = sessions.find(item => item.id === selectedId) || null
   const counts = selectedSession ? sessionStats(selectedSession) : null
   const specialityName = specialities.find(item => item.id === speciality)!.name
 
   // A different session or class means the old query describes nothing.
-  useEffect(() => { setSearch(''); setFilter('all') }, [selectedId, speciality])
+  useEffect(() => { setSearch(''); setFilter('all'); setClassFilter('all') }, [selectedId, speciality])
 
   // Who the roster panel lists. It follows the session's own membership rather
   // than the live class, so the rows, the stat totals and the CSV export all
@@ -104,8 +105,10 @@ export function AttendancePage({
         students={sessionRoster}
         search={search}
         filter={filter}
+        classFilter={classFilter}
         onSearch={setSearch}
         onFilter={setFilter}
+        onClassFilter={setClassFilter}
         onMark={markStudent}
         onCloseSession={handleClose}
       />

@@ -147,3 +147,7 @@
 @media (min-width: 64rem) {
   .roster-tools { flex-direction: row; }
 }
+
+/* The tag sits between the name and the email on a card, so it needs its own
+   line box rather than the inline-flex default's baseline alignment. */
+.student-text .class-tags { margin: 2px 0; }

@@ -1,5 +1,6 @@
 import { Check, ChevronDown, LockKeyhole, Search, X } from 'lucide-react'
-import type { Student } from '../roster'
+import { ClassTags } from './Tags'
+import type { Speciality, Student } from '../roster'
 import type { AttendanceSession } from '../sessions'
 
 export type StatusFilter = 'all' | 'present' | 'absent' | 'unchecked'
@@ -22,7 +23,9 @@ function statusFor(session: AttendanceSession, student: Student) {
  * because `display: table-cell` at 48rem would clobber it; anything that needs
  * to be a flex row lives one level further in. See roster.css.
  */
-export function RosterList({ session, students, search, filter, onSearch, onFilter, onMark, onCloseSession }: {
+export function RosterList({
+  session, students, search, filter, classFilter, onSearch, onFilter, onClassFilter, onMark, onCloseSession,
+}: {
   session: AttendanceSession
   /**
    * The session's membership, in `session.rosterIds` order — not the live
@@ -33,17 +36,24 @@ export function RosterList({ session, students, search, filter, onSearch, onFilt
   students: Student[]
   search: string
   filter: StatusFilter
+  /** Only meaningful for a session spanning several classes; 'all' otherwise. */
+  classFilter: Speciality | 'all'
   onSearch: (next: string) => void
   onFilter: (next: StatusFilter) => void
+  onClassFilter: (next: Speciality | 'all') => void
   onMark: (student: Student, status: 'present' | 'absent') => void
   onCloseSession: () => void
 }) {
   const open = session.state === 'open'
+  // A single-class session needs no tags and no class filter: every row would
+  // carry the same chip, which is noise on a 375px card.
+  const multi = session.specialities.length > 1
   const query = search.trim().toLowerCase()
   const visible = students.filter(student => {
     const haystack = `${student.firstName} ${student.lastName} ${student.id} ${student.email || ''}`.toLowerCase()
     return (!query || haystack.includes(query))
       && (filter === 'all' || statusFor(session, student) === filter)
+      && (classFilter === 'all' || student.speciality === classFilter)
   })
 
   return (
@@ -72,6 +82,13 @@ export function RosterList({ session, students, search, filter, onSearch, onFilt
             </select>
             <ChevronDown size={16} />
           </div>
+          {multi && <div className="select-wrap">
+            <select aria-label="Filter by class" value={classFilter} onChange={event => onClassFilter(event.target.value as Speciality | 'all')}>
+              <option value="all">All classes</option>
+              {session.specialities.map(id => <option key={id} value={id}>{id}</option>)}
+            </select>
+            <ChevronDown size={16} />
+          </div>}
         </div>
       </div>
 
@@ -89,6 +106,7 @@ export function RosterList({ session, students, search, filter, onSearch, onFilt
                     <span className="avatar">{initials(student)}</span>
                     <span className="student-text">
                       <strong>{name}</strong>
+                      {multi && <ClassTags specialities={[student.speciality]} />}
                       {/* No fallback to the Student ID: the row already carries
                           it in its own cell, and printing it twice in a 315px
                           card wastes the line. */}

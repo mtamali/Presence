@@ -1,4 +1,5 @@
 import { CalendarDays, Clock3, Download, MapPin, RotateCcw, Users } from 'lucide-react'
+import { ClassTags, TypeBadge } from './Tags'
 import { formatDate } from '../format'
 import type { AttendanceSession } from '../sessions'
 
@@ -21,7 +22,13 @@ export function SessionSummary({ session, onReopen, onExport }: {
         <span className={open ? 'session-state open' : 'session-state closed'}>
           <span />{open ? 'Live session' : 'Closed session'}
         </span>
-        <h3>{session.course}</h3>
+        {/* `CODE · Name` when there is a code. Legacy sessions have none and show
+            just the name — padding them with a separator would imply a code. */}
+        <h3>{session.courseCode ? `${session.courseCode} · ${session.course}` : session.course}</h3>
+        <div className="start-identity">
+          {session.type && <TypeBadge type={session.type} />}
+          <ClassTags specialities={session.specialities} />
+        </div>
         <div className="session-detail-line">
           <span><CalendarDays size={16} />{formatDate(session.date)}</span>
           <span><Clock3 size={16} />{session.time}</span>
