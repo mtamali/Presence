@@ -13,8 +13,11 @@
   overflow: hidden;
   margin-bottom: 17px;
 }
+/* Pure ornament, and 240px of it. A phone has no width to spend on a ring it
+   would only clip, so it starts at 48rem. */
 .session-summary:after {
   content: '';
+  display: none;
   position: absolute;
   right: 170px;
   top: -53px;
@@ -136,6 +139,7 @@
    ===================================================================== */
 @media (min-width: 48rem) {
   .session-summary { display: flex; padding: 23px 26px; }
+  .session-summary:after { display: block; }
   .session-summary h3 { font-size: 20px; }
   .session-detail-line { gap: 17px; }
 

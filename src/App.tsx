@@ -1,12 +1,13 @@
-import { lazy, Suspense, useEffect, useMemo, useState, type FormEvent, type ReactNode } from 'react'
+import { lazy, Suspense, useEffect, useMemo, useState, type FormEvent } from 'react'
 import {
-  ArrowRight, CalendarDays, CheckCircle2, Clock3, Download, FileText,
-  MapPin, MoreHorizontal, Plus, Printer, QrCode, RotateCcw,
-  ScanLine, Users, X,
+  ArrowRight, CalendarDays, CheckCircle2, Plus, Printer, QrCode, ScanLine, Users, X,
 } from 'lucide-react'
 import { AppShell, type Page } from './components/AppShell'
 import { RosterList, type StatusFilter } from './components/RosterList'
+import { SessionHistory } from './components/SessionHistory'
+import { SessionSummary } from './components/SessionSummary'
 import { SpecialityPicker } from './components/SpecialityPicker'
+import { StatGrid } from './components/StatGrid'
 import { getActiveRoster, specialities, type Speciality, type Student } from './roster'
 import {
   closeSession, createSession, loadSessions, reopenSession, saveSessions, sessionStats,
@@ -14,7 +15,7 @@ import {
 } from './sessions'
 import { exportSessionCsv } from './csv'
 import { BADGES_ENABLED } from './config'
-import { formatDate, localToday } from './format'
+import { localToday } from './format'
 
 // Badge screens are dormant behind BADGES_ENABLED. Importing them lazily keeps
 // qrcode.react and html5-qrcode out of the entry chunk entirely.
@@ -121,11 +122,13 @@ function App() {
       {!showBadges ? <>
         <div className="section-heading"><div><p className="eyebrow small">{speciality} · {specialityName}</p><h2>Course sessions</h2></div><span className="section-meta">{classSessions.length} {classSessions.length === 1 ? 'session' : 'sessions'}</span></div>
         {selectedSession ? <>
-          <section className="session-summary">
-            <div className="session-summary-main"><span className={selectedSession.state === 'open' ? 'session-state open' : 'session-state closed'}><span />{selectedSession.state === 'open' ? 'Live session' : 'Closed session'}</span><h3>{selectedSession.course}</h3><div className="session-detail-line"><span><CalendarDays size={16} />{formatDate(selectedSession.date)}</span><span><Clock3 size={16} />{selectedSession.time}</span>{selectedSession.room && <span><MapPin size={16} />{selectedSession.room}</span>}{selectedSession.teacher && <span><Users size={16} />{selectedSession.teacher}</span>}</div></div>
-            <div className="session-summary-actions">{selectedSession.state === 'open' ? (BADGES_ENABLED && <button className="button button-primary scan-button" onClick={() => setScannerOpen(true)}><ScanLine size={21} /> Scan a badge</button>) : <button className="button button-light" onClick={handleReopen}><RotateCcw size={17} /> Reopen</button>}<button className="button button-light" onClick={() => exportSessionCsv(selectedSession)}><Download size={17} /> Export CSV</button></div>
-          </section>
-          <div className="stat-grid"><Stat label="Present" value={counts!.present} icon={<CheckCircle2 size={19} />} tone="green" /><Stat label="Absent" value={counts!.absent} icon={<X size={19} />} tone="red" /><Stat label="Not checked" value={counts!.unchecked} icon={<MoreHorizontal size={19} />} tone="amber" /><Stat label="Class size" value={counts!.total} icon={<Users size={19} />} tone="blue" /></div>
+          <SessionSummary
+            session={selectedSession}
+            onReopen={handleReopen}
+            onExport={() => exportSessionCsv(selectedSession)}
+            onScan={() => setScannerOpen(true)}
+          />
+          <StatGrid stats={counts!} />
           <RosterList
             session={selectedSession}
             students={classStudents}
@@ -137,20 +140,17 @@ function App() {
             onCloseSession={handleClose}
           />
         </> : <div className="empty-session"><div className="empty-illustration"><QrCode size={46} /><span><ScanLine size={25} /></span></div><h3>No course session yet</h3><p>Start a session for {speciality}. You can then mark each student present or absent as they arrive.</p><button className="button button-primary" onClick={() => setCreateOpen(true)}><Plus size={18} /> Create first session</button></div>}
-        {classSessions.length > 0 && <section className="history-panel"><div className="history-heading"><div><h3>Session history</h3><p>Open a previous session to review or export its attendance.</p></div><FileText size={21} /></div><div className="history-list">{classSessions.map(item => {
-          const stat = sessionStats(item)
-          return <button key={item.id} className={item.id === selectedId ? 'history-item selected' : 'history-item'} onClick={() => { setSelectedId(item.id); setSearch(''); setFilter('all') }}><span className="history-date"><strong>{new Date(`${item.date}T12:00:00`).getDate()}</strong><small>{new Intl.DateTimeFormat('en-GB', { month: 'short' }).format(new Date(`${item.date}T12:00:00`))}</small></span><span className="history-title"><strong>{item.course}</strong><small>{item.time}{item.room ? ` · ${item.room}` : ''}</small></span><span className="history-count"><CheckCircle2 size={16} /> {stat.present}/{stat.total} present</span><span className={item.state === 'open' ? 'history-open' : 'history-closed'}>{item.state === 'open' ? 'Open' : 'Closed'}</span><ArrowRight size={17} className="history-arrow" /></button>
-        })}</div></section>}
+        {classSessions.length > 0 && <SessionHistory
+          sessions={classSessions}
+          selectedId={selectedId}
+          onSelect={id => { setSelectedId(id); setSearch(''); setFilter('all') }}
+        />}
       </> : <Suspense fallback={null}><BadgePage speciality={speciality} students={classStudents} /></Suspense>}
       {createOpen && <CreateSessionModal speciality={speciality} onClose={() => setCreateOpen(false)} onCreate={handleCreate} />}
       {BADGES_ENABLED && scannerOpen && selectedSession && <Suspense fallback={null}><ScannerModal session={selectedSession} onClose={() => setScannerOpen(false)} onConfirm={student => markStudent(student, 'present', 'scan')} /></Suspense>}
       {toast && <div className="toast" role="status"><CheckCircle2 size={18} />{toast}<button onClick={() => setToast('')} aria-label="Dismiss notification"><X size={16} /></button></div>}
     </AppShell>
   )
-}
-
-function Stat({ label, value, icon, tone }: { label: string; value: number; icon: ReactNode; tone: string }) {
-  return <div className="stat-card"><span className={`stat-icon ${tone}`}>{icon}</span><div><strong>{value}</strong><span>{label}</span></div></div>
 }
 
 function CreateSessionModal({ speciality, onClose, onCreate }: { speciality: Speciality; onClose: () => void; onCreate: (details: SessionDetails) => void }) {
