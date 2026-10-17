@@ -6,12 +6,12 @@ import { SessionHistory } from './components/SessionHistory'
 import { SessionSummary } from './components/SessionSummary'
 import { SpecialityPicker } from './components/SpecialityPicker'
 import { StatGrid } from './components/StatGrid'
-import { CreateSessionModal, type SessionDetails } from './components/modals/CreateSessionModal'
+import { CreateSessionModal } from './components/modals/CreateSessionModal'
 import { ImportRosterModal } from './components/modals/ImportRosterModal'
 import { getRoster, saveRoster, specialities, type Speciality, type Student } from './roster'
 import {
-  closeSession, createSession, loadSessions, reopenSession, saveSessions, sessionStats,
-  type AttendanceSession,
+  activeRosterIds, closeSession, createSession, loadSessions, reopenSession, saveSessions,
+  sessionStats, type AttendanceSession, type SessionDetails,
 } from './sessions'
 import { exportSessionCsv } from './csv'
 import { BADGES_ENABLED } from './config'
@@ -38,7 +38,7 @@ function App() {
 
   useEffect(() => saveSessions(sessions), [sessions])
   useEffect(() => {
-    setSelectedId(sessions.filter(item => item.speciality === speciality).sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0]?.id || null)
+    setSelectedId(sessions.filter(item => item.specialities.includes(speciality)).sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0]?.id || null)
     setSearch('')
     setFilter('all')
     // The class switch intentionally chooses its most recent session.
@@ -57,7 +57,7 @@ function App() {
   // never offered for marking.
   const storedRoster = useMemo(() => getRoster(speciality), [speciality, rosterVersion])
   const classStudents = useMemo(() => storedRoster.filter(student => student.active), [storedRoster])
-  const classSessions = useMemo(() => sessions.filter(item => item.speciality === speciality)
+  const classSessions = useMemo(() => sessions.filter(item => item.specialities.includes(speciality))
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt)), [sessions, speciality])
   const selectedSession = classSessions.find(item => item.id === selectedId) || null
   const counts = selectedSession ? sessionStats(selectedSession) : null
@@ -66,18 +66,27 @@ function App() {
   // describe the same set of students even after a roster import.
   const sessionRoster = useMemo(() => {
     if (!selectedSession) return []
-    const byId = new Map(storedRoster.map(student => [student.id, student]))
+    // Across every class in the session, not just the one being viewed: a shared
+    // lecture must render its whole roster or the rows would disagree with the
+    // stat totals and the export.
+    const byId = new Map<string, Student>()
+    for (const item of specialities) {
+      if (!selectedSession.specialities.includes(item.id)) continue
+      for (const student of getRoster(item.id)) if (!byId.has(student.id)) byId.set(student.id, student)
+    }
     return selectedSession.rosterIds
       .map(id => byId.get(id))
       .filter((student): student is Student => Boolean(student))
-  }, [selectedSession, storedRoster])
+    // rosterVersion is the signal that localStorage changed under us.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedSession, rosterVersion])
   const specialityName = specialities.find(item => item.id === speciality)!.name
   // Attendance of each class's latest session, drawn as the bar across the
   // bottom of its card. A class with no session yet gets no bar.
   const progress = useMemo(() => {
     const shares: Partial<Record<Speciality, number>> = {}
     for (const item of specialities) {
-      const latest = sessions.filter(session => session.speciality === item.id)
+      const latest = sessions.filter(session => session.specialities.includes(item.id))
         .sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0]
       if (!latest) continue
       const stat = sessionStats(latest)
@@ -126,16 +135,16 @@ function App() {
 
   function handleImport(students: Student[]) {
     saveRoster(speciality, students)
-    const activeIds = students.filter(student => student.active).map(student => student.id)
     // Open sessions are still being taken, so they follow the new class list.
-    // Closed ones are a record of who was expected that day and never move —
-    // their totals and CSV export stay exactly as they were.
-    setSessions(current => current.map(item => item.speciality === speciality && item.state === 'open'
-      ? { ...item, rosterIds: activeIds }
+    // Closed ones are a record of who was expected that day and never move.
+    // Each one re-snapshots across *its own* classes: using only the imported
+    // speciality's ids would silently shrink a shared lecture to one class.
+    setSessions(current => current.map(item => item.specialities.includes(speciality) && item.state === 'open'
+      ? { ...item, rosterIds: activeRosterIds(item.specialities) }
       : item))
     setRosterVersion(version => version + 1)
     setImportOpen(false)
-    setToast(`${speciality} roster updated — ${activeIds.length} active students.`)
+    setToast(`${speciality} roster updated — ${students.filter(student => student.active).length} active students.`)
   }
 
   return (

@@ -2,10 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { ArrowRight, CalendarDays, Users, X } from 'lucide-react'
 import { getActiveRoster, type Speciality } from '../../roster'
 import { localToday } from '../../format'
-import type { AttendanceSession } from '../../sessions'
-
-/** Everything the teacher types; the rest of a session is derived on create. */
-export type SessionDetails = Omit<AttendanceSession, 'id' | 'state' | 'createdAt' | 'entries' | 'rosterIds'>
+import type { SessionDetails } from '../../sessions'
 
 /**
  * Bottom sheet on phone, centred dialog from 48rem — see modals.css. The field
@@ -25,7 +22,14 @@ export function CreateSessionModal({ speciality, onClose, onCreate }: {
   function submit(event: FormEvent) {
     event.preventDefault()
     if (!course.trim() || !date || !time) return
-    onCreate({ speciality, course: course.trim(), date, time, room: room.trim(), teacher: teacher.trim() })
+    // A session created here is ad-hoc: no code, no type, no timetable origin.
+    // The course picker that supplies all three arrives in Task 8.
+    onCreate({
+      specialities: [speciality],
+      courseCode: '',
+      course: course.trim(),
+      date, time, room: room.trim(), teacher: teacher.trim(),
+    })
   }
 
   return (
