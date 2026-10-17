@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { Plus } from 'lucide-react'
 import { AssignCellModal } from './modals/AssignCellModal'
+import { StartSessionModal } from './modals/StartSessionModal'
 import { ClassTags, TypeBadge } from './Tags'
 import { findCourse, type Course } from '../courses'
+import { sessionForCell, type AttendanceSession, type SessionDetails } from '../sessions'
 import {
-  DAYS, SLOTS, clearEntry, entryAt, setEntry, todayDayIndex,
+  DAYS, SLOTS, clearEntry, dateForDayInCurrentWeek, entryAt, setEntry, todayDayIndex,
   type DayIndex, type SlotIndex, type TimetableEntry,
 } from '../timetable'
 
@@ -16,19 +18,26 @@ import {
  * as the grid. The switch is pure CSS (see timetable.css) — nothing here reads
  * the viewport width, so there is no resize listener and no layout flash.
  */
-export function TimetablePage({ entries, courses, onChange, onToast, onGoToCourses }: {
+export function TimetablePage({ entries, courses, sessions, onChange, onToast, onGoToCourses, onStart, onOpenSession }: {
   entries: TimetableEntry[]
   courses: Course[]
+  sessions: AttendanceSession[]
   onChange: (next: TimetableEntry[]) => void
   onToast: (message: string) => void
   onGoToCourses: () => void
+  onStart: (details: SessionDetails) => void
+  onOpenSession: (session: AttendanceSession) => void
 }) {
   const today = todayDayIndex()
   // Opens on today, or Sunday at the weekend — the grid has no Friday column.
   const [day, setDay] = useState<DayIndex>(today ?? 0)
-  const [cell, setCell] = useState<{ day: DayIndex; slot: SlotIndex } | null>(null)
+  const [cell, setCell] = useState<{ day: DayIndex; slot: SlotIndex; mode: 'start' | 'assign' } | null>(null)
 
   const open = cell ? entryAt(cell.day, cell.slot, entries) : undefined
+  const openCourse = open ? findCourse(open.courseCode, courses) : undefined
+  // The teacher name carries over from the last session created, so it is typed
+  // once a term rather than once a slot.
+  const lastTeacher = sessions.map(item => item.teacher).find(name => Boolean(name)) || ''
 
   function save(entry: TimetableEntry) {
     onChange(setEntry(entry, entries))
@@ -89,7 +98,7 @@ export function TimetablePage({ entries, courses, onChange, onToast, onGoToCours
                 className="timetable-cell"
                 key={slot.index}
                 data-filled={entry ? 'true' : 'false'}
-                onClick={() => setCell({ day: item.index, slot: slot.index })}
+                onClick={() => setCell({ day: item.index, slot: slot.index, mode: entry ? 'start' : 'assign' })}
                 aria-label={`${item.label} slot ${slot.index}, ${slot.start} to ${slot.end} — ${
                   entry ? `${entry.courseCode} ${entry.type}` : 'empty, assign a course'}`}
               >
@@ -113,7 +122,20 @@ export function TimetablePage({ entries, courses, onChange, onToast, onGoToCours
       ))}
     </div>
 
-    {cell && <AssignCellModal
+    {/* The `open &&` guard is what narrows `open` to a TimetableEntry for the
+        prop; a cell cleared from the assign sheet sets `cell` to null anyway. */}
+    {cell && open && cell.mode === 'start' && <StartSessionModal
+      entry={open}
+      course={openCourse}
+      existing={sessionForCell(cell.day, cell.slot, dateForDayInCurrentWeek(cell.day), sessions)}
+      defaultTeacher={lastTeacher}
+      onClose={() => setCell(null)}
+      onStart={onStart}
+      onOpen={onOpenSession}
+      onEdit={() => setCell({ ...cell, mode: 'assign' })}
+    />}
+
+    {cell && cell.mode === 'assign' && <AssignCellModal
       day={cell.day}
       slot={cell.slot}
       entry={open || null}

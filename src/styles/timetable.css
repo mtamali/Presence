@@ -114,6 +114,9 @@
 
 .modal-empty { font-size: 13px; line-height: 1.6; color: var(--muted); margin: var(--space-3) 0 0; }
 
+.start-identity { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-2); margin: var(--space-2) 0; }
+.start-room { font-size: 11px; font-weight: 700; color: var(--muted); }
+
 /* A select inside a form field is a field-width control, so it has to fill its
    wrapper — otherwise only the option text's own width is clickable and the
    chevron sits adrift from it. The roster toolbar's copy stays content-width on

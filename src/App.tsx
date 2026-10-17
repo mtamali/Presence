@@ -71,13 +71,36 @@ function App() {
 
   // Declared after classSessions because it reads it.
   useEffect(() => {
-    setSelectedId(classSessions[0]?.id || null)
-    // The class switch intentionally chooses its most recent session.
+    // Keep the selection when it belongs to the class being switched to; this
+    // also means switching away and back returns you to where you were.
+    setSelectedId(current => classSessions.some(item => item.id === current)
+      ? current
+      : classSessions[0]?.id || null)
+    // The class switch otherwise chooses that class's most recent session.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [speciality])
 
   function replaceSession(updated: AttendanceSession) {
     setSessions(current => current.map(item => item.id === updated.id ? updated : item))
+  }
+
+  /**
+   * Both paths out of the timetable land on Attendance with the session selected.
+   * Switching the speciality picker is not cosmetic: the attendance screen lists
+   * `classSessions`, so without it a 1MESE session would be selected and then
+   * filtered out of the very list it was selected from.
+   */
+  function openSession(session: AttendanceSession) {
+    setSpeciality(session.specialities[0])
+    setSelectedId(session.id)
+    setPage('attendance')
+  }
+
+  function startFromCell(details: SessionDetails) {
+    const session = createSession(details)
+    setSessions(current => [session, ...current])
+    openSession(session)
+    setToast(`${session.courseCode} ${session.type} session started.`)
   }
 
   function handleCreate(details: SessionDetails) {
@@ -138,9 +161,12 @@ function App() {
       {page === 'timetable' && <TimetablePage
         entries={entries}
         courses={courses}
+        sessions={sessions}
         onChange={setEntries}
         onToast={setToast}
         onGoToCourses={() => setPage('courses')}
+        onStart={startFromCell}
+        onOpenSession={openSession}
       />}
 
       {showBadges && <Suspense fallback={null}><BadgePage speciality={speciality} students={classStudents} /></Suspense>}
