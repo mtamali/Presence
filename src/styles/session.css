@@ -133,6 +133,8 @@
 }
 .empty-session h3 { font-size: 19px; letter-spacing: -.04em; margin-bottom: 8px; }
 .empty-session p { font-size: 12px; line-height: 1.6; color: #7d919b; max-width: 360px; margin: 0 auto 19px; }
+/* Stacked on phone so each button keeps the full sheet width. */
+.empty-actions { display: grid; gap: var(--space-2); justify-items: stretch; width: 100%; max-width: 320px; margin: 0 auto; }
 
 /* ========================================================================
    48rem — the banner goes side-by-side, stats go to four across.
@@ -145,6 +147,8 @@
 
   .session-summary-actions { margin-top: 0; justify-content: flex-end; }
   .session-summary-actions .button { width: auto; }
+
+  .empty-actions { grid-auto-flow: column; justify-content: center; max-width: none; }
 
   .stat-grid { grid-template-columns: repeat(4, 1fr); }
 

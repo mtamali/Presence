@@ -1,5 +1,4 @@
-import { CalendarDays, Clock3, Download, MapPin, RotateCcw, ScanLine, Users } from 'lucide-react'
-import { BADGES_ENABLED } from '../config'
+import { CalendarDays, Clock3, Download, MapPin, RotateCcw, Users } from 'lucide-react'
 import { formatDate } from '../format'
 import type { AttendanceSession } from '../sessions'
 
@@ -10,11 +9,10 @@ import type { AttendanceSession } from '../sessions'
  * Closing a session is not here — that button lives in the roster footer,
  * beside the count of who is still unchecked.
  */
-export function SessionSummary({ session, onReopen, onExport, onScan }: {
+export function SessionSummary({ session, onReopen, onExport }: {
   session: AttendanceSession
   onReopen: () => void
   onExport: () => void
-  onScan: () => void
 }) {
   const open = session.state === 'open'
   return (
@@ -32,11 +30,7 @@ export function SessionSummary({ session, onReopen, onExport, onScan }: {
         </div>
       </div>
       <div className="session-summary-actions">
-        {/* Scanning is dormant: BADGES_ENABLED's literal `false` lets the
-            bundler drop this branch along with the modal behind it. */}
-        {open
-          ? BADGES_ENABLED && <button className="button button-primary scan-button" onClick={onScan}><ScanLine size={21} /> Scan a badge</button>
-          : <button className="button button-light" onClick={onReopen}><RotateCcw size={17} /> Reopen</button>}
+        {!open && <button className="button button-light" onClick={onReopen}><RotateCcw size={17} /> Reopen</button>}
         <button className="button button-light" onClick={onExport}><Download size={17} /> Export CSV</button>
       </div>
     </section>
