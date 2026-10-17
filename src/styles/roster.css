@@ -9,40 +9,56 @@
   overflow: hidden;
 }
 
-.roster-head { padding: 18px; display: block; align-items: center; justify-content: space-between; gap: 20px; }
+/* The separator below the head serves whatever follows it — the list or the
+   empty state — so neither has to draw its own. */
+.roster-head { padding: 18px; display: block; align-items: center; justify-content: space-between; gap: 20px; border-bottom: 1px solid #edf1f2; }
 .roster-head h3, .history-heading h3 { font-size: 15px; letter-spacing: -.035em; margin: 0 0 4px; }
 .roster-head p, .history-heading p { color: #8a9aa2; font-size: 11px; margin: 0; }
 
 .roster-tools { display: flex; gap: 8px; margin-top: 17px; flex-direction: column; }
 
-/* ---- Table --------------------------------------------------------------
-   The table keeps its 700px floor and scrolls inside .table-scroll, so a
-   narrow viewport never pushes the page itself sideways. Task 11 replaces
-   this with cards on phone. */
+/* ---- Rows ---------------------------------------------------------------
+   One <ul> for both layouts: a card per student on phone, a table from 48rem.
+   The four <li> children are plain cells carrying no layout of their own —
+   `display: table-cell` would clobber it — so each nests the flex row it
+   needs (.student-cell, .roster-mark). The old 700px-wide .roster-table and
+   the .table-scroll that contained its overflow are gone; nothing on this
+   page scrolls sideways now. */
 
-.table-scroll { overflow: auto; }
-.roster-table { width: 100%; border-collapse: collapse; min-width: 700px; }
-.roster-table thead { background: #f8fafb; }
-.roster-table th {
-  text-align: left;
-  padding: 12px 13px;
-  color: #82949f;
-  text-transform: uppercase;
-  font-size: 9px;
-  letter-spacing: .09em;
-  font-weight: 800;
-  white-space: nowrap;
-  border-top: 1px solid #edf1f2;
-  border-bottom: 1px solid #edf1f2;
+.roster-list {
+  list-style: none;
+  margin: 0;
+  padding: var(--space-3);
+  display: grid;
+  gap: var(--space-2);
 }
-.roster-table th:first-child { width: 35%; }
-.roster-table td { border-bottom: 1px solid #edf1f2; padding: 11px 13px; font-size: 11px; }
-.roster-table tbody tr:last-child td { border-bottom: 0; }
-.roster-table tbody tr:hover { background: #fbfcfc; }
+
+.roster-row {
+  display: grid;
+  /* minmax(0, 1fr), not 1fr: a long email must shrink the text column rather
+     than widen the card past the viewport. */
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "student action"
+    "id      action"
+    "status  action";
+  align-items: center;
+  gap: var(--space-1) var(--space-3);
+  padding: var(--space-3);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+
+.roster-row-student { grid-area: student; min-width: 0; }
+.roster-row-id { grid-area: id; color: var(--muted); font-size: .75rem; }
+.roster-row-status { grid-area: status; }
+.roster-row-action { grid-area: action; }
 
 .student-cell { display: flex; align-items: center; gap: 11px; }
-.student-cell strong { display: block; font-size: 11px; color: #24404e; white-space: nowrap; }
-.student-cell small { color: #a0acb1; font-size: 9px; display: block; margin-top: 3px; }
+.student-text { min-width: 0; }
+.student-text strong { display: block; font-size: .8125rem; color: #24404e; }
+.student-text small { display: block; color: #a0acb1; font-size: .6875rem; margin-top: 3px; overflow-wrap: anywhere; }
 .avatar {
   width: 34px;
   height: 34px;
@@ -54,7 +70,6 @@
   place-items: center;
   font: 800 10px 'Manrope', sans-serif;
 }
-.muted-cell { color: #80909a; }
 
 /* ---- Status -------------------------------------------------------------- */
 
@@ -67,20 +82,23 @@
 
 /* ---- Check-in controls --------------------------------------------------- */
 
-.row-actions { display: flex; gap: 5px; justify-content: flex-end; }
-.mini-button {
-  border: 1px solid #e4eaed;
-  background: white;
-  color: #9aadb4;
-  border-radius: 6px;
+.roster-mark { display: flex; gap: var(--space-2); justify-content: flex-end; }
+.roster-mark button {
   width: var(--tap);
   height: var(--tap);
+  flex: none;
   display: grid;
   place-items: center;
+  border: 1px solid #e4eaed;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: #9aadb4;
 }
-.mini-button:hover, .mini-button.selected-present { background: #e5f5ee; color: #09846a; border-color: #c9e8d9; }
-.mini-button.selected-absent, .mini-button:nth-child(2):hover { background: var(--no-bg); color: #c46e66; border-color: #f2d2cc; }
-.action-column { text-align: right !important; }
+.roster-mark button:hover { background: #f4f7f8; color: #5d7a85; }
+/* Only the pressed state is colour-coded, and aria-pressed is what selects it,
+   so the styling cannot drift from what a screen reader announces. */
+.roster-mark button[aria-pressed="true"]:first-child { background: var(--ok-bg); color: var(--ok-fg); border-color: #c9e8d9; }
+.roster-mark button[aria-pressed="true"]:last-child { background: var(--no-bg); color: #c46e66; border-color: #f2d2cc; }
 .locked-cell { display: inline-flex; align-items: center; gap: 6px; color: #9aaab1; font-size: 10px; }
 
 /* ---- Footer -------------------------------------------------------------- */
@@ -102,13 +120,25 @@
 .empty-table { text-align: center; padding: 32px; color: #8fa0a8; font-size: 12px; }
 
 /* ========================================================================
-   48rem — head and footer go back to single rows.
+   48rem — the cards fold into a table; head and footer go back to single rows.
    ===================================================================== */
 @media (min-width: 48rem) {
   .roster-head { display: flex; padding: 22px 23px; }
   .roster-tools { margin-top: 0; }
-  .roster-table th, .roster-table td { padding-left: 23px; padding-right: 23px; }
   .roster-footer { padding: 0 23px; align-items: center; flex-direction: row; }
+
+  .roster-list { display: table; width: 100%; border-collapse: collapse; padding: 0; gap: 0; }
+  .roster-row { padding: 0; background: none; border: 0; border-radius: 0; display: table-row; }
+  .roster-row > * {
+    display: table-cell;
+    vertical-align: middle;
+    padding: 11px 23px;
+    border-bottom: 1px solid #edf1f2;
+  }
+  .roster-row:last-child > * { border-bottom: 0; }
+  .roster-row:hover > * { background: #fbfcfc; }
+  .roster-row-student { width: 35%; }
+  .roster-row-action { text-align: right; }
 }
 
 /* ========================================================================

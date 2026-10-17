@@ -1,11 +1,11 @@
 import { lazy, Suspense, useEffect, useMemo, useState, type FormEvent, type ReactNode } from 'react'
 import {
-  ArrowRight, CalendarDays, Check, CheckCircle2,
-  ChevronDown, Clock3, Download, FileText,
-  LockKeyhole, MapPin, MoreHorizontal, Plus, Printer, QrCode, RotateCcw,
-  ScanLine, Search, Users, X,
+  ArrowRight, CalendarDays, CheckCircle2, Clock3, Download, FileText,
+  MapPin, MoreHorizontal, Plus, Printer, QrCode, RotateCcw,
+  ScanLine, Users, X,
 } from 'lucide-react'
 import { AppShell, type Page } from './components/AppShell'
+import { RosterList, type StatusFilter } from './components/RosterList'
 import { SpecialityPicker } from './components/SpecialityPicker'
 import { getActiveRoster, specialities, type Speciality, type Student } from './roster'
 import {
@@ -21,17 +21,7 @@ import { formatDate, localToday } from './format'
 const BadgePage = lazy(() => import('./components/badges/BadgePage'))
 const ScannerModal = lazy(() => import('./components/badges/ScannerModal'))
 
-type StatusFilter = 'all' | 'present' | 'absent' | 'unchecked'
-
 type SessionDetails = Omit<AttendanceSession, 'id' | 'state' | 'createdAt' | 'entries' | 'rosterIds'>
-
-function initials(student: Student) {
-  return `${student.firstName.charAt(0)}${student.lastName.charAt(0)}`.toUpperCase()
-}
-
-function statusFor(session: AttendanceSession, student: Student) {
-  return session.entries[student.id]?.status || 'unchecked'
-}
 
 function App() {
   const [sessions, setSessions] = useState<AttendanceSession[]>(loadSessions)
@@ -66,12 +56,6 @@ function App() {
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt)), [sessions, speciality])
   const selectedSession = classSessions.find(item => item.id === selectedId) || null
   const counts = selectedSession ? sessionStats(selectedSession) : null
-  const visibleStudents = classStudents.filter(student => {
-    const query = search.trim().toLowerCase()
-    const matchesSearch = !query || `${student.firstName} ${student.lastName} ${student.id} ${student.email || ''}`.toLowerCase().includes(query)
-    const matchesFilter = filter === 'all' || (selectedSession && statusFor(selectedSession, student) === filter)
-    return matchesSearch && matchesFilter
-  })
   const specialityName = specialities.find(item => item.id === speciality)!.name
   // Attendance of each class's latest session, drawn as the bar across the
   // bottom of its card. A class with no session yet gets no bar.
@@ -142,14 +126,16 @@ function App() {
             <div className="session-summary-actions">{selectedSession.state === 'open' ? (BADGES_ENABLED && <button className="button button-primary scan-button" onClick={() => setScannerOpen(true)}><ScanLine size={21} /> Scan a badge</button>) : <button className="button button-light" onClick={handleReopen}><RotateCcw size={17} /> Reopen</button>}<button className="button button-light" onClick={() => exportSessionCsv(selectedSession)}><Download size={17} /> Export CSV</button></div>
           </section>
           <div className="stat-grid"><Stat label="Present" value={counts!.present} icon={<CheckCircle2 size={19} />} tone="green" /><Stat label="Absent" value={counts!.absent} icon={<X size={19} />} tone="red" /><Stat label="Not checked" value={counts!.unchecked} icon={<MoreHorizontal size={19} />} tone="amber" /><Stat label="Class size" value={counts!.total} icon={<Users size={19} />} tone="blue" /></div>
-          <section className="roster-panel"><div className="roster-head"><div><h3>Student roster</h3><p>Tap a student to mark them present or absent.</p></div><div className="roster-tools"><div className="search-field"><Search size={17} /><input aria-label="Search students" placeholder="Search name or student ID" value={search} onChange={event => setSearch(event.target.value)} /></div><div className="select-wrap"><select aria-label="Filter by attendance" value={filter} onChange={event => setFilter(event.target.value as StatusFilter)}><option value="all">All students</option><option value="present">Present</option><option value="absent">Absent</option><option value="unchecked">Not checked</option></select><ChevronDown size={16} /></div></div></div>
-            <div className="table-scroll"><table className="roster-table"><thead><tr><th>Student</th><th>Student ID</th><th>Attendance</th><th className="action-column">Action</th></tr></thead><tbody>{visibleStudents.map(student => {
-              const entry = selectedSession.entries[student.id]
-              const status = statusFor(selectedSession, student)
-              return <tr key={student.id}><td><div className="student-cell"><span className="avatar">{initials(student)}</span><span><strong>{student.lastName} {student.firstName}</strong><small>{student.email ?? student.id}</small></span></div></td><td className="muted-cell">{student.id}</td><td><span className={`status-pill ${status}`}><span />{status === 'unchecked' ? 'Not checked' : status === 'present' ? 'Present' : 'Absent'}</span>{entry?.status === 'present' && <small className="check-time">{new Date(entry.at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })} · {entry.method === 'scan' ? 'QR scan' : 'Manual'}</small>}</td><td className="action-column">{selectedSession.state === 'open' ? <div className="row-actions"><button className={status === 'present' ? 'mini-button selected-present' : 'mini-button'} onClick={() => markStudent(student, 'present', 'manual')} title="Mark present" aria-label={`Mark ${student.firstName} ${student.lastName} present`}><Check size={16} /></button><button className={status === 'absent' ? 'mini-button selected-absent' : 'mini-button'} onClick={() => markStudent(student, 'absent', 'manual')} title="Mark absent" aria-label={`Mark ${student.firstName} ${student.lastName} absent`}><X size={16} /></button></div> : <span className="locked-cell"><LockKeyhole size={15} /> Final</span>}</td></tr>
-            })}</tbody></table>{visibleStudents.length === 0 && <div className="empty-table">No students match this search or filter.</div>}</div>
-            <div className="roster-footer"><span>Showing {visibleStudents.length} of {classStudents.length} students</span>{selectedSession.state === 'open' && <button className="text-button" onClick={handleClose}><LockKeyhole size={16} /> Close session & mark unchecked absent</button>}</div>
-          </section>
+          <RosterList
+            session={selectedSession}
+            students={classStudents}
+            search={search}
+            filter={filter}
+            onSearch={setSearch}
+            onFilter={setFilter}
+            onMark={(student, status) => markStudent(student, status, 'manual')}
+            onCloseSession={handleClose}
+          />
         </> : <div className="empty-session"><div className="empty-illustration"><QrCode size={46} /><span><ScanLine size={25} /></span></div><h3>No course session yet</h3><p>Start a session for {speciality}. You can then mark each student present or absent as they arrive.</p><button className="button button-primary" onClick={() => setCreateOpen(true)}><Plus size={18} /> Create first session</button></div>}
         {classSessions.length > 0 && <section className="history-panel"><div className="history-heading"><div><h3>Session history</h3><p>Open a previous session to review or export its attendance.</p></div><FileText size={21} /></div><div className="history-list">{classSessions.map(item => {
           const stat = sessionStats(item)
