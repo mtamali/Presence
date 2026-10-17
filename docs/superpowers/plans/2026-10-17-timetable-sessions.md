@@ -685,7 +685,8 @@ export function validateEntry(draft: TimetableEntry, courses: Course[]): string 
   if (!DAYS.some(day => day.index === draft.day)) return 'Choose a day between Sunday and Thursday.'
   if (!SLOTS.some(slot => slot.index === draft.slot)) return 'Choose a slot between 1 and 6.'
   if (!findCourse(draft.courseCode, courses)) return 'Choose a course from the list.'
-  if (!SESSION_TYPES.some(type => type.id === draft.type)) return 'Choose CR, TD or TP.'
+  // Names the field, like the five messages above it — and the test asserts /type/i.
+  if (!SESSION_TYPES.some(type => type.id === draft.type)) return 'Choose a session type: CR, TD or TP.'
   if (draft.specialities.length === 0) return 'Choose at least one class.'
   return undefined
 }
@@ -3397,9 +3398,9 @@ npm test
 npm run build
 ```
 
-Expected: every test passes — 50 from the mobile-first work, plus 20 from Task 1,
-23 from Task 2 and 10 from Task 3 — and `tsc` is clean. Record the actual count;
-a number lower than 103 means a file was not added.
+Expected: every test passes — 50 from the mobile-first work, plus 21 from Task 1,
+26 from Task 2 and 10 from Task 3 — and `tsc` is clean. Record the actual count;
+a number lower than 107 means a file was not added.
 
 - [ ] **Step 2: The entry chunk did not regress**
 
