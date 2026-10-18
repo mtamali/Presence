@@ -27,10 +27,19 @@
 /* ---- Breakdown switch ----------------------------------------------------
    Equal thirds across the card. Three labels are what fits 375px, which is
    why the overall figures are pinned above as tiles rather than becoming a
-   fourth chip in here. */
+   fourth chip in here.
 
-.segmented { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 3px; background: #f1f5f6; border-radius: 9px; }
-.segmented button {
+   Scoped to .analytics-tools, and it must stay that way. `.segmented` is
+   already the modals' type picker (timetable.css:98) — a teal fill with its
+   label forced to white. Unscoped, these rules load later and win the
+   `background` at equal specificity, but timetable's
+   `…[aria-pressed="true"] strong` is a level more specific and keeps the
+   label white: white on white, an invisible CR chip. Same reasoning as
+   `.field .select-wrap select` below it — scope the newcomer, leave the
+   shared name alone. */
+
+.analytics-tools .segmented { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 3px; background: #f1f5f6; border-radius: 9px; }
+.analytics-tools .segmented button {
   border: 0;
   border-radius: 7px;
   background: transparent;
@@ -38,7 +47,7 @@
   font: 700 11px var(--font-body);
   padding: 0 6px;
 }
-.segmented button[aria-pressed="true"] { background: white; color: var(--teal); box-shadow: 0 1px 3px rgba(19, 44, 59, .12); }
+.analytics-tools .segmented button[aria-pressed="true"] { background: white; color: var(--teal); box-shadow: 0 1px 3px rgba(19, 44, 59, .12); }
 
 /* ---- Rate rows ----------------------------------------------------------- */
 
@@ -92,6 +101,6 @@
 @media (min-width: 48rem) {
   .analytics-head { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 18px 23px; }
   .analytics-tools { flex-direction: row; align-items: center; margin-top: 0; }
-  .segmented { grid-template-columns: repeat(3, minmax(82px, 1fr)); }
+  .analytics-tools .segmented { grid-template-columns: repeat(3, minmax(82px, 1fr)); }
   .rate-row { padding: 15px 23px; }
 }
