@@ -41,6 +41,24 @@
 .field input::placeholder { color: #adbac0; }
 .field-row { display: block; gap: 13px; }
 
+/* The date and its shortcut share one line. `min-width: 0` lets the input shrink
+   past the date text's intrinsic width, which is what keeps the pair inside half
+   a modal once .field-row goes side-by-side at 48rem; the button holds its own
+   width. Both inherit the --tap floor, so the two read as one control. */
+.field-date { display: flex; gap: 7px; }
+.field-date input { min-width: 0; }
+.today-button {
+  flex: none;
+  padding: 0 13px;
+  border: 1px solid #dfe8eb;
+  border-radius: 7px;
+  background: #f4f9f9;
+  color: var(--teal);
+  font-size: 11px;
+  font-weight: 700;
+}
+.today-button:hover { background: #e9f3f3; }
+
 .modal-note {
   background: #f1f8f8;
   border: 1px solid #e1efef;

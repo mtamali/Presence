@@ -127,7 +127,10 @@ export function CreateSessionModal({ speciality, courses, onClose, onCreate, onG
             <div className="field-row">
               <label className="field">
                 <span>Date <b>*</b></span>
-                <input type="date" required value={date} onChange={event => setDate(event.target.value)} />
+                <div className="field-date">
+                  <input type="date" required value={date} onChange={event => setDate(event.target.value)} />
+                  <button type="button" className="today-button" onClick={() => setDate(localToday())}>Today</button>
+                </div>
               </label>
               <label className="field">
                 <span>Start time <b>*</b></span>
@@ -154,7 +157,7 @@ export function CreateSessionModal({ speciality, courses, onClose, onCreate, onG
 
             <div className="modal-actions">
               <button type="button" className="button button-light" onClick={onClose}>Cancel</button>
-              <button type="submit" className="button button-primary">Start session <ArrowRight size={17} /></button>
+              <button type="submit" className="button button-primary" aria-disabled={!!error}>Start session <ArrowRight size={17} /></button>
             </div>
           </form>}
       </div>

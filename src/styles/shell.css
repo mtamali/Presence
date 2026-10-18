@@ -152,6 +152,20 @@
 .button-light { background: white; border-color: #dfe6ea; color: #344f5d; }
 .button-light:hover { background: #f6f9f9; }
 
+/* `aria-disabled`, not `disabled`: a disabled button drops out of the tab order
+   and tells a screen-reader user nothing about what is missing. This one still
+   takes focus and still takes a click — the handler refuses the submit and
+   reveals .modal-error instead, so the grey has an explanation attached. The
+   lift and the hover tint are cancelled so it does not read as pressable. */
+.button[aria-disabled="true"] {
+  background: #c3ced2;
+  color: #f4f7f8;
+  border-color: transparent;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+.button[aria-disabled="true"]:hover { background: #c3ced2; transform: none; }
+
 /* The attendance page carries two title-row actions. Wrapping them keeps
    .page-title-row's space-between pinning the title to the left edge. */
 .page-actions { display: flex; gap: var(--space-2); flex: none; }

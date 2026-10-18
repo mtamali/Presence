@@ -3,7 +3,7 @@ import { ArrowRight, Pencil, PlayCircle, Users, X } from 'lucide-react'
 import { ClassTags, TypeBadge } from '../Tags'
 import { activeRosterIds, type AttendanceSession, type SessionDetails } from '../../sessions'
 import { DAYS, SLOTS, dateForDayInCurrentWeek, type TimetableEntry } from '../../timetable'
-import { formatDate } from '../../format'
+import { formatDate, localToday } from '../../format'
 import type { Course } from '../../courses'
 
 /**
@@ -76,7 +76,10 @@ export function StartSessionModal({ entry, course, existing, defaultTeacher, onC
               <div className="field-row">
                 <label className="field">
                   <span>Date <b>*</b></span>
-                  <input type="date" required value={date} onChange={event => setDate(event.target.value)} />
+                  <div className="field-date">
+                    <input type="date" required value={date} onChange={event => setDate(event.target.value)} />
+                    <button type="button" className="today-button" onClick={() => setDate(localToday())}>Today</button>
+                  </div>
                 </label>
                 <label className="field">
                   <span>Start time <b>*</b></span>
