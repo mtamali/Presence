@@ -11,3 +11,10 @@ server/data/*.db-shm
 .DS_Store
 *.log
 .superpowers/
+
+# Student rosters: names, emails and IDs. The repo ships the importer that
+# builds these, never the people in them. Regenerate students.json locally
+# with scripts/import_rosters.py once your own class lists are in Listes 2627/.
+Listes 2627/
+src/data/students.json
+students.csv
