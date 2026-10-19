@@ -1,4 +1,5 @@
 import { getActiveRoster, specialities as allSpecialities, type Speciality } from './roster'
+import { writeStore } from './storage'
 import type { DayIndex, SessionType, SlotIndex } from './timetable'
 
 export type AttendanceEntry = {
@@ -146,6 +147,7 @@ export function loadSessions(): AttendanceSession[] {
   }
 }
 
+/** Returns undefined when the write stuck, or a message fit to show. */
 export function saveSessions(sessions: AttendanceSession[]) {
-  localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(sessions))
+  return writeStore(SESSION_STORAGE_KEY, sessions)
 }

@@ -1,4 +1,5 @@
 import type { Speciality } from './roster'
+import { writeStore } from './storage'
 
 export type Course = {
   /** Normalised: trimmed and uppercased. Globally unique across the list. */
@@ -27,8 +28,9 @@ export function loadCourses(): Course[] {
   }
 }
 
+/** Returns undefined when the write stuck, or a message fit to show. */
 export function saveCourses(courses: Course[]) {
-  localStorage.setItem(COURSE_STORAGE_KEY, JSON.stringify(courses))
+  return writeStore(COURSE_STORAGE_KEY, courses)
 }
 
 export function findCourse(code: string, courses: Course[]): Course | undefined {

@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
-import { CheckCircle2, Plus, Printer, Upload, X } from 'lucide-react'
+import { AlertTriangle, CheckCircle2, Plus, Printer, Upload, X } from 'lucide-react'
 import { AppShell, pageCopy, type Page } from './components/AppShell'
 import { AnalyticsPage } from './components/AnalyticsPage'
 import { AttendancePage } from './components/AttendancePage'
@@ -8,13 +8,13 @@ import { TimetablePage } from './components/TimetablePage'
 import { SpecialityPicker } from './components/SpecialityPicker'
 import { CreateSessionModal } from './components/modals/CreateSessionModal'
 import { ImportRosterModal } from './components/modals/ImportRosterModal'
-import { getRoster, saveRoster, specialities, type Speciality, type Student } from './roster'
+import { getRoster, ROSTER_STORAGE_KEY, saveRoster, specialities, type Speciality, type Student } from './roster'
 import {
-  activeRosterIds, createSession, loadSessions, saveSessions, sessionStats,
+  activeRosterIds, createSession, loadSessions, saveSessions, SESSION_STORAGE_KEY, sessionStats,
   type AttendanceSession, type SessionDetails,
 } from './sessions'
-import { loadCourses, saveCourses, type Course } from './courses'
-import { loadTimetable, saveTimetable, type TimetableEntry } from './timetable'
+import { COURSE_STORAGE_KEY, loadCourses, saveCourses, type Course } from './courses'
+import { loadTimetable, saveTimetable, TIMETABLE_STORAGE_KEY, type TimetableEntry } from './timetable'
 import { BADGES_ENABLED } from './config'
 
 // Badge screens are dormant behind BADGES_ENABLED. Importing them lazily keeps
@@ -37,10 +37,28 @@ function App() {
   // The roster lives in localStorage, outside React. An import bumps this so
   // the memos below re-read it.
   const [rosterVersion, setRosterVersion] = useState(0)
+  /**
+   * The store that last refused a write, and what to tell the teacher. Tracked
+   * per key because the quota is per origin while the payloads are not: a
+   * multi-megabyte sessions write can fail in the same breath that a
+   * two-hundred-byte courses write succeeds, and clearing on the small one
+   * would hide the failure that matters. Unlike a toast this does not expire —
+   * it stays until that same store writes cleanly again, because for as long
+   * as it is true, everything on screen is unsaved.
+   */
+  const [storageError, setStorageError] = useState<{ key: string; message: string } | null>(null)
 
-  useEffect(() => saveSessions(sessions), [sessions])
-  useEffect(() => saveCourses(courses), [courses])
-  useEffect(() => saveTimetable(entries), [entries])
+  function trackWrite(key: string, message: string | undefined) {
+    setStorageError(current => message ? { key, message } : current?.key === key ? null : current)
+  }
+
+  // Persistence stays a side effect of state so that every mutation path, present
+  // and future, is covered without having to remember to save. What changed is
+  // that these writes report failure rather than throwing it into the commit
+  // phase, where it used to unmount the app.
+  useEffect(() => trackWrite(SESSION_STORAGE_KEY, saveSessions(sessions)), [sessions])
+  useEffect(() => trackWrite(COURSE_STORAGE_KEY, saveCourses(courses)), [courses])
+  useEffect(() => trackWrite(TIMETABLE_STORAGE_KEY, saveTimetable(entries)), [entries])
   useEffect(() => {
     if (!toast) return
     const timer = window.setTimeout(() => setToast(''), 4200)
@@ -116,7 +134,10 @@ function App() {
   }
 
   function handleImport(students: Student[]) {
-    saveRoster(speciality, students)
+    // Called straight from the handler rather than an effect, because the roster
+    // lives outside React state — so this is the one write that has to report
+    // itself here.
+    trackWrite(ROSTER_STORAGE_KEY, saveRoster(speciality, students))
     // Open sessions are still being taken, so they follow the new class list.
     // Closed ones are a record of who was expected that day and never move.
     // Each one re-snapshots across *its own* classes: using only the imported
@@ -201,6 +222,15 @@ function App() {
         onGoToCourses={() => { setCreateOpen(false); setPage('courses') }}
       />}
       {importOpen && <ImportRosterModal speciality={speciality} currentRoster={storedRoster} onClose={() => setImportOpen(false)} onApply={handleImport} />}
+      {/* Sits above the toast and outlives it. A success toast fades after four
+          seconds; "nothing is being saved" stays true until it is dealt with, and
+          it has to contradict the toast that just said the mark was recorded.
+          Dismissing it is safe — the next failed write puts it straight back. */}
+      {storageError && <div className="storage-alert" role="alert">
+        <AlertTriangle size={19} />
+        <p>{storageError.message}</p>
+        <button onClick={() => setStorageError(null)} aria-label="Dismiss storage warning"><X size={16} /></button>
+      </div>}
       {toast && <div className="toast" role="status"><CheckCircle2 size={18} />{toast}<button onClick={() => setToast('')} aria-label="Dismiss notification"><X size={16} /></button></div>}
     </AppShell>
   )

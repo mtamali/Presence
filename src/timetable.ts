@@ -1,6 +1,7 @@
 import { findCourse, normalizeCode, type Course } from './courses'
 import { isoDate } from './format'
 import type { Speciality } from './roster'
+import { writeStore } from './storage'
 
 /** Cours (lecture), Travaux dirigés (guided work), Travaux pratiques (practical). */
 export type SessionType = 'CR' | 'TD' | 'TP'
@@ -60,8 +61,9 @@ export function loadTimetable(): TimetableEntry[] {
   }
 }
 
+/** Returns undefined when the write stuck, or a message fit to show. */
 export function saveTimetable(entries: TimetableEntry[]) {
-  localStorage.setItem(TIMETABLE_STORAGE_KEY, JSON.stringify(entries))
+  return writeStore(TIMETABLE_STORAGE_KEY, entries)
 }
 
 export function entryAt(day: DayIndex, slot: SlotIndex, entries: TimetableEntry[]): TimetableEntry | undefined {

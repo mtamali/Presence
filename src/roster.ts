@@ -1,4 +1,5 @@
 import seed from './data/students.json'
+import { writeStore } from './storage'
 
 function isUpperToken(token: string) {
   // A token counts as uppercase only if it contains at least one cased
@@ -81,8 +82,9 @@ export function getActiveRoster(speciality: Speciality): Student[] {
   return getRoster(speciality).filter(student => student.active)
 }
 
+/** Returns undefined when the write stuck, or a message fit to show. */
 export function saveRoster(speciality: Speciality, students: Student[]) {
   const all = loadOverrides()
   all[speciality] = students
-  localStorage.setItem(ROSTER_STORAGE_KEY, JSON.stringify(all))
+  return writeStore(ROSTER_STORAGE_KEY, all)
 }

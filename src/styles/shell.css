@@ -288,6 +288,59 @@
 .toast > svg { flex: none; color: #75dcc3; }
 .toast button { border: 0; background: transparent; color: #b7ced1; margin-left: 15px; display: grid; place-items: center; }
 
+/* A band across the top, not a corner toast: it says that nothing on screen is
+   being saved, which is not a message to risk missing, and it has to outrank
+   the toast at the bottom that just said a student was marked. Its own red —
+   --no-fg is the soft tint used for an absence, far too quiet for this. */
+.storage-alert {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  /* Above the toast (40) and the modal backdrop (20): a full store is worth
+     knowing about even while a dialog is open, since the dialog cannot save. */
+  z-index: 60;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: calc(env(safe-area-inset-top, 0) + 11px) 13px 11px;
+  background: #8e2f22;
+  color: #fff;
+  box-shadow: 0 10px 30px rgba(94, 29, 20, .3);
+  font-size: 11.5px;
+  line-height: 1.45;
+}
+.storage-alert > svg { flex: none; margin-top: 1px; color: #ffcdbf; }
+.storage-alert p { margin: 0; }
+/* Negative margins let the 44px target overhang the band's own padding rather
+   than making the band taller than the text needs. */
+.storage-alert button {
+  flex: none;
+  border: 0;
+  background: transparent;
+  color: #f1c0b4;
+  display: grid;
+  place-items: center;
+  min-width: var(--tap);
+  min-height: var(--tap);
+  margin: -11px -13px -11px 0;
+}
+
+/* The error boundary's fallback. It renders outside AppShell, so it has no
+   layout to inherit and centres itself. */
+.crash-panel {
+  min-height: 100vh;
+  max-width: 30rem;
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-4);
+  display: grid;
+  place-content: center;
+  justify-items: start;
+  gap: var(--space-4);
+}
+.crash-panel h1 { font-family: var(--font-display); font-size: 1.35rem; }
+.crash-panel p { margin: 0; color: var(--muted); font-size: 12.5px; line-height: 1.6; }
+
 /* ========================================================================
    48rem — the shell becomes a real sidebar beside the content.
    ===================================================================== */
