@@ -5,6 +5,7 @@ import { SESSION_TYPES, type SessionType } from '../../timetable'
 import { activeRosterIds, type SessionDetails } from '../../sessions'
 import { specialities as allSpecialities, type Speciality } from '../../roster'
 import { localToday } from '../../format'
+import { useDialog } from './useDialog'
 
 /**
  * A session that is not on the timetable: a catch-up, a swapped room, an exam.
@@ -29,6 +30,7 @@ export function CreateSessionModal({ speciality, courses, onClose, onCreate, onG
   const [room, setRoom] = useState('')
   const [teacher, setTeacher] = useState('')
   const [submitted, setSubmitted] = useState(false)
+  const dialog = useDialog(onClose)
 
   const course = findCourse(courseCode, courses)
   const error = !course ? 'Choose a course from the list.'
@@ -65,7 +67,7 @@ export function CreateSessionModal({ speciality, courses, onClose, onCreate, onG
 
   return (
     <div className="modal-backdrop" onMouseDown={event => { if (event.target === event.currentTarget) onClose() }}>
-      <div className="modal create-modal" role="dialog" aria-modal="true" aria-labelledby="create-title">
+      <div className="modal create-modal" ref={dialog} role="dialog" aria-modal="true" aria-labelledby="create-title">
         <div className="modal-header">
           <div className="modal-icon"><CalendarDays size={23} /></div>
           <button className="icon-close" onClick={onClose} aria-label="Close"><X size={21} /></button>

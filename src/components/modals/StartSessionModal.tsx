@@ -5,6 +5,7 @@ import { activeRosterIds, type AttendanceSession, type SessionDetails } from '..
 import { DAYS, SLOTS, dateForDayInCurrentWeek, type TimetableEntry } from '../../timetable'
 import { formatDate, localToday } from '../../format'
 import type { Course } from '../../courses'
+import { useDialog } from './useDialog'
 
 /**
  * Turns a timetable cell into a live attendance session.
@@ -29,6 +30,7 @@ export function StartSessionModal({ entry, course, existing, defaultTeacher, onC
   const [date, setDate] = useState(dateForDayInCurrentWeek(entry.day))
   const [time, setTime] = useState(slot.start)
   const [teacher, setTeacher] = useState(defaultTeacher)
+  const dialog = useDialog(onClose)
 
   // Across every class on the cell: a shared lecture's roster is the sum of them.
   const headcount = activeRosterIds(entry.specialities).length
@@ -51,7 +53,7 @@ export function StartSessionModal({ entry, course, existing, defaultTeacher, onC
 
   return (
     <div className="modal-backdrop" onMouseDown={event => { if (event.target === event.currentTarget) onClose() }}>
-      <div className="modal create-modal" role="dialog" aria-modal="true" aria-labelledby="start-title">
+      <div className="modal create-modal" ref={dialog} role="dialog" aria-modal="true" aria-labelledby="start-title">
         <div className="modal-header">
           <div className="modal-icon"><PlayCircle size={23} /></div>
           <button className="icon-close" onClick={onClose} aria-label="Close"><X size={21} /></button>

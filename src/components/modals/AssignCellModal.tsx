@@ -6,6 +6,7 @@ import {
   type DayIndex, type SessionType, type SlotIndex, type TimetableEntry,
 } from '../../timetable'
 import { specialities as allSpecialities, type Speciality } from '../../roster'
+import { useDialog } from './useDialog'
 
 /**
  * Fills, edits or clears one timetable cell.
@@ -30,6 +31,7 @@ export function AssignCellModal({ day, slot, entry, courses, onClose, onSave, on
   const [classes, setClasses] = useState<Speciality[]>(entry?.specialities || [])
   const [room, setRoom] = useState(entry?.room || '')
   const [submitted, setSubmitted] = useState(false)
+  const dialog = useDialog(onClose)
 
   const dayLabel = DAYS.find(item => item.index === day)!.label
   const slotTime = SLOTS.find(item => item.index === slot)!
@@ -60,7 +62,7 @@ export function AssignCellModal({ day, slot, entry, courses, onClose, onSave, on
 
   return (
     <div className="modal-backdrop" onMouseDown={event => { if (event.target === event.currentTarget) onClose() }}>
-      <div className="modal create-modal" role="dialog" aria-modal="true" aria-labelledby="assign-title">
+      <div className="modal create-modal" ref={dialog} role="dialog" aria-modal="true" aria-labelledby="assign-title">
         <div className="modal-header">
           <div className="modal-icon"><CalendarClock size={23} /></div>
           <button className="icon-close" onClick={onClose} aria-label="Close"><X size={21} /></button>

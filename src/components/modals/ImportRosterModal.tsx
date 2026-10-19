@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { FileSpreadsheet, Upload, UserPlus, X } from 'lucide-react'
 import { applyRosterImport, previewRosterImport, type RosterImportPreview } from '../../classroomImport'
 import type { Speciality, Student } from '../../roster'
+import { useDialog } from './useDialog'
 
 /** How many rows of each list to show before collapsing into a count. */
 const PREVIEW_LIMIT = 8
@@ -27,6 +28,7 @@ export function ImportRosterModal({ speciality, currentRoster, onClose, onApply 
   const [fileName, setFileName] = useState('')
   const [preview, setPreview] = useState<RosterImportPreview | null>(null)
   const [error, setError] = useState('')
+  const dialog = useDialog(onClose)
 
   // Rows that will actually land in the roster. When a file yields none — every
   // row rejected, or a well-formed file for the wrong class — the only effect of
@@ -49,7 +51,7 @@ export function ImportRosterModal({ speciality, currentRoster, onClose, onApply 
 
   return (
     <div className="modal-backdrop" onMouseDown={event => { if (event.target === event.currentTarget) onClose() }}>
-      <div className="modal import-modal" role="dialog" aria-modal="true" aria-labelledby="import-title">
+      <div className="modal import-modal" ref={dialog} role="dialog" aria-modal="true" aria-labelledby="import-title">
         <div className="modal-header">
           <div className="modal-icon"><UserPlus size={23} /></div>
           <button className="icon-close" onClick={onClose} aria-label="Close"><X size={21} /></button>

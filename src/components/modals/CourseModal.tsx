@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { BookMarked, X } from 'lucide-react'
 import { normalizeCode, validateCourse, type Course } from '../../courses'
 import { specialities as allSpecialities, type Speciality } from '../../roster'
+import { useDialog } from './useDialog'
 
 /**
  * Add or edit one course. `editing` is the course being replaced, or null when
@@ -20,6 +21,7 @@ export function CourseModal({ courses, speciality, editing, onClose, onSave }: {
   const [name, setName] = useState(editing?.name || '')
   const [classes, setClasses] = useState<Speciality[]>(editing?.specialities || [speciality])
   const [submitted, setSubmitted] = useState(false)
+  const dialog = useDialog(onClose)
 
   const draft: Course = { code, name, specialities: classes }
   const error = validateCourse(draft, courses, editing?.code)
@@ -42,7 +44,7 @@ export function CourseModal({ courses, speciality, editing, onClose, onSave }: {
 
   return (
     <div className="modal-backdrop" onMouseDown={event => { if (event.target === event.currentTarget) onClose() }}>
-      <div className="modal create-modal" role="dialog" aria-modal="true" aria-labelledby="course-title">
+      <div className="modal create-modal" ref={dialog} role="dialog" aria-modal="true" aria-labelledby="course-title">
         <div className="modal-header">
           <div className="modal-icon"><BookMarked size={23} /></div>
           <button className="icon-close" onClick={onClose} aria-label="Close"><X size={21} /></button>
