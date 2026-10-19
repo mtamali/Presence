@@ -2,7 +2,7 @@ import { useMemo, useState, type ReactNode } from 'react'
 import { CheckCircle2, ChevronDown, Percent, Users, X } from 'lucide-react'
 import { Stat } from './StatGrid'
 import { TypeBadge } from './Tags'
-import { byCourse, bySpeciality, byStudent, overview, type Tally } from '../analytics'
+import { PERIODS, byCourse, bySpeciality, byStudent, overview, withinPeriod, type Period, type Tally } from '../analytics'
 import { getRoster, specialities, type Speciality } from '../roster'
 import type { AttendanceSession } from '../sessions'
 
@@ -45,6 +45,8 @@ export function AnalyticsPage({ sessions, rosterVersion }: {
 }) {
   const [breakdown, setBreakdown] = useState<Breakdown>('classes')
   const [classFilter, setClassFilter] = useState<Speciality | 'all'>('all')
+  // All time, so the screen opens on everything rather than on a quiet today.
+  const [period, setPeriod] = useState<Period>('all')
 
   // Every student of every class: the analytics module attributes each entry by
   // the student's own speciality, so a partial roster would silently drop rows.
@@ -52,12 +54,17 @@ export function AnalyticsPage({ sessions, rosterVersion }: {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const students = useMemo(() => specialities.flatMap(item => getRoster(item.id)), [rosterVersion])
 
-  const total = useMemo(() => overview(sessions), [sessions])
-  const classes = useMemo(() => bySpeciality(sessions, students), [sessions, students])
-  const courses = useMemo(() => byCourse(sessions), [sessions])
-  const studentRows = useMemo(() => byStudent(sessions, students)
+  // Narrowed once, here, so every figure below is of the same period. Feeding
+  // the tiles `sessions` and the rows `scoped` would put an all-time headline
+  // above a single week's breakdown.
+  const scoped = useMemo(() => withinPeriod(sessions, period), [sessions, period])
+
+  const total = useMemo(() => overview(scoped), [scoped])
+  const classes = useMemo(() => bySpeciality(scoped, students), [scoped, students])
+  const courses = useMemo(() => byCourse(scoped), [scoped])
+  const studentRows = useMemo(() => byStudent(scoped, students)
     .filter(row => classFilter === 'all' || row.student.speciality === classFilter),
-    [sessions, students, classFilter])
+    [scoped, students, classFilter])
 
   if (sessions.length === 0) {
     return <>
@@ -74,6 +81,30 @@ export function AnalyticsPage({ sessions, rosterVersion }: {
   return <>
     <Heading sessions={total.sessions} />
 
+    {/* Above the tiles, not beside the breakdown switch: this scopes the whole
+        screen, where the switch only chooses how the rows are grouped. */}
+    <div className="chip-row analytics-period" role="group" aria-label="Period">
+      {PERIODS.map(item => (
+        <button
+          type="button"
+          key={item.id}
+          className="chip-toggle"
+          aria-pressed={period === item.id}
+          onClick={() => setPeriod(item.id)}
+        >{item.label}</button>
+      ))}
+    </div>
+
+    {/* Sessions exist, just none in this period — which is a different thing
+        from having recorded nothing ever, and must not hide the chips above:
+        they are the only way back to a period that has data. */}
+    {scoped.length === 0 && <section className="analytics-panel">
+      <div className="empty-table">
+        Nothing recorded in this period. Choose a wider one to see more.
+      </div>
+    </section>}
+
+    {scoped.length > 0 && <>
     <div className="stat-grid">
       {/* A percentage leads, because a count of absences means nothing without
           the number of chances to be absent. */}
@@ -143,6 +174,7 @@ export function AnalyticsPage({ sessions, rosterVersion }: {
           )))}
       </ul>
     </section>
+    </>}
   </>
 }
 

@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import type { Student } from './roster'
 import type { AttendanceEntry, AttendanceSession } from './sessions'
-import { byCourse, bySpeciality, byStudent, overview } from './analytics'
+import { byCourse, bySpeciality, byStudent, overview, periodRange, withinPeriod } from './analytics'
 
 function student(id: string, over: Partial<Student> = {}): Student {
   return { id, lastName: 'L' + id, firstName: 'F', speciality: '1MAUT', active: true, ...over }
@@ -176,5 +176,75 @@ describe('by student', () => {
     const tied = [student('B', { lastName: 'Zidane' }), student('A', { lastName: 'Amrani' })]
     const both = session({ rosterIds: ['A', 'B'], entries: marks({ A: 'present', B: 'present' }) })
     expect(byStudent([both], tied).map(row => row.student.lastName)).toEqual(['Amrani', 'Zidane'])
+  })
+})
+
+describe('period filtering', () => {
+  // A Wednesday, so the week boundaries sit either side of `now` rather than
+  // on it — a bug that clamps to today would still pass a Sunday fixture.
+  const wednesday = new Date(2026, 9, 14, 12)
+
+  it('leaves every session alone for all time', () => {
+    const list = [session({ date: '2020-01-01' }), session({ date: '2030-12-31' })]
+    expect(withinPeriod(list, 'all', wednesday)).toEqual(list)
+  })
+
+  it('has no bounds for all time', () => {
+    expect(periodRange('all', wednesday)).toBeUndefined()
+  })
+
+  it('keeps today to the single day', () => {
+    expect(periodRange('today', wednesday)).toEqual({ from: '2026-10-14', to: '2026-10-14' })
+  })
+
+  it('runs the week Sunday to Saturday, as the teaching week does', () => {
+    expect(periodRange('week', wednesday)).toEqual({ from: '2026-10-11', to: '2026-10-17' })
+  })
+
+  it('starts the week on a Sunday that is already Sunday', () => {
+    const sunday = new Date(2026, 9, 11, 12)
+    expect(periodRange('week', sunday)).toEqual({ from: '2026-10-11', to: '2026-10-17' })
+  })
+
+  it('covers the calendar month end to end', () => {
+    expect(periodRange('month', wednesday)).toEqual({ from: '2026-10-01', to: '2026-10-31' })
+  })
+
+  it('ends February on the 29th in a leap year', () => {
+    expect(periodRange('month', new Date(2024, 1, 10, 12))).toEqual({ from: '2024-02-01', to: '2024-02-29' })
+  })
+
+  it('includes both boundary days of the week and excludes the days either side', () => {
+    const list = [
+      session({ id: 'before', date: '2026-10-10' }),  // the Saturday before
+      session({ id: 'start', date: '2026-10-11' }),   // the Sunday it opens on
+      session({ id: 'end', date: '2026-10-17' }),     // the Saturday it closes on
+      session({ id: 'after', date: '2026-10-18' }),   // the next Sunday
+    ]
+    expect(withinPeriod(list, 'week', wednesday).map(item => item.id)).toEqual(['start', 'end'])
+  })
+
+  it('includes both boundary days of the month', () => {
+    const list = [
+      session({ id: 'before', date: '2026-09-30' }),
+      session({ id: 'first', date: '2026-10-01' }),
+      session({ id: 'last', date: '2026-10-31' }),
+      session({ id: 'after', date: '2026-11-01' }),
+    ]
+    expect(withinPeriod(list, 'month', wednesday).map(item => item.id)).toEqual(['first', 'last'])
+  })
+
+  it('keeps a session dated later this month, rather than dropping it', () => {
+    // Both ends are bounded on purpose: a session booked for Friday is still
+    // part of this week, and shows as having nothing recorded yet.
+    const ahead = [session({ id: 'friday', date: '2026-10-16' })]
+    expect(withinPeriod(ahead, 'week', wednesday).map(item => item.id)).toEqual(['friday'])
+  })
+
+  it('does not mutate the date it is given', () => {
+    const now = new Date(2026, 9, 14, 12)
+    periodRange('week', now)
+    periodRange('month', now)
+    expect(now.getTime()).toBe(new Date(2026, 9, 14, 12).getTime())
   })
 })

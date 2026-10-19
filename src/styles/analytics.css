@@ -24,6 +24,14 @@
    timetable.css, scoped the same way rather than changing the shared rule. */
 .analytics-tools .select-wrap select { flex: 1; min-width: 0; }
 
+/* ---- Period ---------------------------------------------------------------
+   Borrows .chip-row / .chip-toggle from timetable.css, the same pills the
+   session form uses for classes — so this needs nothing but the rhythm below
+   it, matching .section-heading above and .stat-grid after. Wrapping, not
+   scrolling: four labels reflow to two rows on a phone and stay reachable. */
+
+.analytics-period { margin-bottom: 17px; }
+
 /* ---- Breakdown switch ----------------------------------------------------
    Equal thirds across the card. Three labels are what fits 375px, which is
    why the overall figures are pinned above as tiles rather than becoming a

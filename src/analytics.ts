@@ -1,3 +1,4 @@
+import { isoDate } from './format'
 import { specialities as allSpecialities, type Speciality, type Student } from './roster'
 import type { AttendanceSession } from './sessions'
 import { SESSION_TYPES, type SessionType } from './timetable'
@@ -9,6 +10,61 @@ import { SESSION_TYPES, type SessionType } from './timetable'
  * is read from localStorage, and nothing is cached. That keeps the arithmetic
  * testable without a DOM and lets the screen stay a thin renderer.
  */
+
+/* ---- Period ---------------------------------------------------------------
+   Narrowing happens before any aggregation, so a chosen period moves the
+   headline figures and the breakdown together. Filtering only the list would
+   leave the tiles reading all-time beside a week's worth of rows. */
+
+export type Period = 'today' | 'week' | 'month' | 'all'
+
+export const PERIODS: { id: Period; label: string }[] = [
+  { id: 'today', label: 'Today' },
+  { id: 'week', label: 'This week' },
+  { id: 'month', label: 'This month' },
+  { id: 'all', label: 'All time' },
+]
+
+/**
+ * The inclusive `YYYY-MM-DD` bounds of a period, or undefined for 'all'.
+ *
+ * The week runs Sunday to Saturday because the teaching week does — DAYS in
+ * timetable.ts starts at Sunday — so "this week" means on this screen what it
+ * means on the timetable.
+ *
+ * Both ends are bounded, so a session dated later this month sits inside "This
+ * month" rather than being silently dropped by an open upper bound. `now` is a
+ * parameter so the tests do not depend on when they run.
+ */
+export function periodRange(period: Period, now = new Date()): { from: string; to: string } | undefined {
+  if (period === 'all') return undefined
+  if (period === 'today') return { from: isoDate(now), to: isoDate(now) }
+  if (period === 'week') {
+    const start = new Date(now)
+    start.setDate(start.getDate() - start.getDay())  // getDay(): 0 is Sunday
+    const end = new Date(start)
+    end.setDate(end.getDate() + 6)
+    return { from: isoDate(start), to: isoDate(end) }
+  }
+  // Day 0 of the next month is the last day of this one, leap years included.
+  return {
+    from: isoDate(new Date(now.getFullYear(), now.getMonth(), 1)),
+    to: isoDate(new Date(now.getFullYear(), now.getMonth() + 1, 0)),
+  }
+}
+
+/**
+ * The sessions inside a period.
+ *
+ * `YYYY-MM-DD` sorts lexicographically, so the comparison is on strings and no
+ * Date is constructed per session — which is also what keeps a timezone from
+ * shifting a session across a boundary, the same reason `isoDate` exists.
+ */
+export function withinPeriod(sessions: AttendanceSession[], period: Period, now = new Date()): AttendanceSession[] {
+  const range = periodRange(period, now)
+  if (!range) return sessions
+  return sessions.filter(session => session.date >= range.from && session.date <= range.to)
+}
 
 export type Tally = {
   present: number
