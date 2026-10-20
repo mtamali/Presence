@@ -15,6 +15,29 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+/* Status bar scrim, for the Android build only — in a browser the inset is 0px
+   and this paints nothing.
+   From Android 15 edge-to-edge is enforced: the WebView draws behind the
+   status bar and no plugin call can opt out. Nothing in this layout is sticky,
+   so the page simply scrolls underneath — which at rest puts the clock over
+   the navy brand header and, a moment later, over white cards. No single icon
+   colour is legible against both, so instead of tinting the icons to match the
+   page, this pins an opaque navy band in front of whatever is passing beneath.
+   The icons are then set light once, in native/shell.ts, and stay readable.
+   It sits above .storage-alert (60), which already pads itself by the same
+   inset so its text lands just below this band rather than behind it. */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: env(safe-area-inset-top, 0px);
+  background: var(--navy);
+  z-index: 70;
+  pointer-events: none;
+}
+
 h1, h2, h3, strong { font-family: var(--font-display); }
 h1, h2, h3, p { margin-top: 0; }
 

@@ -1,0 +1,73 @@
+/* Self-hosted faces, bundled into the build so the app renders correctly with
+   no network — a CDN <link> degrades to system-ui on the first launch in a
+   classroom with no signal.
+   These mirror @fontsource's own latin-*.css rather than importing them,
+   for one reason: fontsource lists a .woff fallback beside each .woff2, and
+   importing its stylesheets makes Vite emit both. That fallback is 147 KB of
+   payload for browsers that cannot run this app anyway — woff2 has been
+   supported since Chrome 36 and Android 5, and minSdk here is 24 (Android 7).
+   Dropping it halves the font weight shipped in the APK.
+   Narrowed on two further axes: the latin subset only (which covers the
+   accents this app needs, "Présence" included) and upright only, since no
+   rule anywhere sets italic. Weights are the four the stylesheets actually
+   ask for — the old Google Fonts URL also pulled 500, which nothing uses.
+   The files/ paths are fontsource's documented layout and are stable across
+   its patch releases; the versions are pinned exactly in package.json. */
+
+@font-face {
+  font-family: 'DM Sans';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(@fontsource/dm-sans/files/dm-sans-latin-400-normal.woff2) format('woff2');
+}
+@font-face {
+  font-family: 'DM Sans';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 600;
+  src: url(@fontsource/dm-sans/files/dm-sans-latin-600-normal.woff2) format('woff2');
+}
+@font-face {
+  font-family: 'DM Sans';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 700;
+  src: url(@fontsource/dm-sans/files/dm-sans-latin-700-normal.woff2) format('woff2');
+}
+@font-face {
+  font-family: 'DM Sans';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 800;
+  src: url(@fontsource/dm-sans/files/dm-sans-latin-800-normal.woff2) format('woff2');
+}
+
+@font-face {
+  font-family: 'Manrope';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(@fontsource/manrope/files/manrope-latin-400-normal.woff2) format('woff2');
+}
+@font-face {
+  font-family: 'Manrope';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 600;
+  src: url(@fontsource/manrope/files/manrope-latin-600-normal.woff2) format('woff2');
+}
+@font-face {
+  font-family: 'Manrope';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 700;
+  src: url(@fontsource/manrope/files/manrope-latin-700-normal.woff2) format('woff2');
+}
+@font-face {
+  font-family: 'Manrope';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 800;
+  src: url(@fontsource/manrope/files/manrope-latin-800-normal.woff2) format('woff2');
+}

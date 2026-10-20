@@ -15,7 +15,13 @@
   height: auto;
   background: var(--navy);
   color: #e8f0f2;
-  padding: 13px 16px;
+  /* On phone this bar is the top of the app, so it absorbs the status bar
+     inset: the band painted by body::before is the same navy, and padding the
+     brand down by the same amount is what stops the logo being clipped by it.
+     In a browser the inset is 0px and this is the plain 13px it always was.
+     `0px`, not `0` — calc() rejects <length> + <number> and would drop the
+     whole declaration. */
+  padding: calc(13px + env(safe-area-inset-top, 0px)) 16px 13px;
   display: flex;
   align-items: center;
   gap: 20px;
@@ -351,7 +357,7 @@
     width: 220px;
     min-height: 100vh;
     height: 100vh;
-    padding: 27px 16px 24px;
+    padding: calc(27px + env(safe-area-inset-top, 0px)) 16px 24px;
     display: flex;
     flex-direction: column;
     align-items: stretch;
@@ -401,7 +407,10 @@
 
   .toast { bottom: 24px; }
 
-  .topbar { height: 72px; padding: 0 28px; }
+  /* From this tier the sidebar is a column beside the content, so the topbar —
+     not the sidebar — is what sits under the status bar in the main column.
+     Only reachable on a tablet; a phone is portrait-locked below 48rem. */
+  .topbar { height: calc(72px + env(safe-area-inset-top, 0px)); padding: env(safe-area-inset-top, 0px) 28px 0; }
   .topbar-date { display: flex; }
 
   .content-wrap { padding: 32px 28px; }
@@ -447,7 +456,9 @@
    ===================================================================== */
 @media (min-width: 90rem) {
   .sidebar { width: 262px; }
-  .topbar { padding: 0 42px; }
+  /* Repeats the inset because this shorthand would otherwise reset the
+     padding-top set at 48rem. */
+  .topbar { padding: env(safe-area-inset-top, 0px) 42px 0; }
   .content-wrap { padding: 41px 43px 24px; }
   .speciality-card { padding: 19px; gap: 13px; }
   .speciality-tail { display: flex; }

@@ -16,6 +16,7 @@ import {
 import { COURSE_STORAGE_KEY, loadCourses, saveCourses, type Course } from './courses'
 import { loadTimetable, saveTimetable, TIMETABLE_STORAGE_KEY, type TimetableEntry } from './timetable'
 import { BADGES_ENABLED } from './config'
+import { useNativeShell } from './native/shell'
 
 // Badge screens are dormant behind BADGES_ENABLED. Importing them lazily keeps
 // qrcode.react and html5-qrcode out of the entry chunk entirely.
@@ -64,6 +65,9 @@ function App() {
     const timer = window.setTimeout(() => setToast(''), 4200)
     return () => window.clearTimeout(timer)
   }, [toast])
+
+  // Status bar and the Android back button. No-op outside the APK.
+  useNativeShell(page, () => setPage('timetable'))
 
   // With badges retired the flag pins this to false, but the branch is kept so
   // flipping BADGES_ENABLED restores the screen without further edits.

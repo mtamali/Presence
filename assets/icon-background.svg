@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <!-- Adaptive-icon background layer: flat fill, because Android crops this to
+       whatever mask the launcher uses and any detail here would be cut
+       unpredictably. Matches the theme-color in index.html. -->
+  <rect width="1024" height="1024" fill="#112c3b"/>
+</svg>

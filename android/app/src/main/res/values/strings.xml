@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Présence</string>
+    <string name="title_activity_main">Présence</string>
+    <string name="package_name">com.mtamali.presence</string>
+    <string name="custom_url_scheme">com.mtamali.presence</string>
+</resources>

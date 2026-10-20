@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2732" height="2732" viewBox="0 0 2732 2732">
+  <!-- Splash screen. @capacitor/assets crops this square canvas to whatever
+       aspect the device has, from either edge, so everything meaningful stays
+       in the middle: a phone in portrait sees roughly the central vertical
+       strip and nothing else. Hence the plain centred mark on flat navy —
+       there is nowhere safe to put a wordmark that would not be cut on some
+       device. -->
+  <rect width="2732" height="2732" fill="#112c3b"/>
+  <path d="M 1180 1420 L 1320 1560 L 1600 1180"
+        fill="none" stroke="#2bb3a3" stroke-width="112"
+        stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

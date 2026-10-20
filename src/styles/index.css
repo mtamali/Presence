@@ -1,6 +1,7 @@
 /* Barrel. Order is the cascade: tokens, then base, then components.
    Local @imports are inlined by Vite at build time — no extra requests. */
 
+@import './fonts.css';
 @import './tokens.css';
 @import './base.css';
 @import './shell.css';

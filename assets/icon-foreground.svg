@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <!-- Adaptive-icon foreground layer. Android guarantees only the centred 66%
+       of this canvas is visible — a circle of radius ~341 around (512,512) —
+       so the mark is kept well inside that: its furthest point sits ~269 out,
+       leaving room for the parallax the launcher applies on some devices.
+       A plain tick rather than anything cleverer, because this has to stay
+       legible at 48px in a notification tray. -->
+  <path d="M 330 530 L 450 650 L 700 390"
+        fill="none" stroke="#2bb3a3" stroke-width="92"
+        stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
