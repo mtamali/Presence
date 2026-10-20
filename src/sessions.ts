@@ -109,20 +109,47 @@ type StoredSession = AttendanceSession & { speciality?: Speciality }
  * empty, and `type` is left absent rather than guessed. Sessions written before
  * `rosterIds` existed are reconstructed from the union of whoever has an entry
  * and whoever is currently active — the closest honest reconstruction available.
+ *
+ * It also guarantees every field `AttendanceSession` declares as required is
+ * actually present, which is a stronger promise than it sounds: this function
+ * is the trust boundary for restored backups (backup.ts), so the JSON reaching
+ * it may have been written by an older build or edited by hand. One absent key
+ * used to be fatal — `Object.entries(undefined)` in analytics.ts took down the
+ * whole Analytics screen, and a missing `createdAt` broke the sort in App. The
+ * defaults are conservative: unknown state reads as `closed`, so a record we
+ * cannot vouch for is never offered for marking.
  */
 function backfill(session: StoredSession): AttendanceSession {
   const list = Array.isArray(session.specialities)
     ? session.specialities
     : session.speciality ? [session.speciality] : []
 
+  const entries = session.entries && typeof session.entries === 'object' ? session.entries : {}
+
   let rosterIds = session.rosterIds
   if (!Array.isArray(rosterIds)) {
-    const ids = new Set(Object.keys(session.entries || {}))
+    const ids = new Set(Object.keys(entries))
     for (const id of activeRosterIds(list)) ids.add(id)
     rosterIds = [...ids]
   }
 
-  const migrated: StoredSession = { ...session, specialities: list, courseCode: session.courseCode || '', rosterIds }
+  const migrated: StoredSession = {
+    ...session,
+    // Without an id a session cannot be selected, updated or deleted, and two
+    // of them collide as React keys.
+    id: session.id || crypto.randomUUID(),
+    specialities: list,
+    courseCode: session.courseCode || '',
+    course: session.course || '',
+    date: session.date || '',
+    time: session.time || '',
+    room: session.room || '',
+    teacher: session.teacher || '',
+    state: session.state === 'open' ? 'open' : 'closed',
+    createdAt: session.createdAt || '',
+    rosterIds,
+    entries,
+  }
   delete migrated.speciality
   return migrated
 }

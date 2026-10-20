@@ -89,6 +89,38 @@ describe('session snapshot', () => {
     expect(loadSessions()).toEqual([])
   })
 
+  /**
+   * The loader is the trust boundary for a restored backup, so a session that
+   * is missing required fields has to come out usable rather than take a screen
+   * down. Each of these was a real crash: no `entries` threw out of
+   * `Object.entries` in analytics, and no `createdAt` threw out of the
+   * `localeCompare` sort in App.
+   */
+  it('fills in every required field a hand-edited or restored session lacks', () => {
+    saveRoster('1MAUT', [student('A1')])
+    localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify([{ specialities: ['1MAUT'] }]))
+
+    const [loaded] = loadSessions()
+    expect(loaded.entries).toEqual({})
+    expect(loaded.createdAt).toBe('')
+    expect(loaded.id).toBeTruthy()
+    expect(loaded.course).toBe('')
+    expect(loaded.date).toBe('')
+    // Conservative: a record we cannot vouch for is not offered for marking.
+    expect(loaded.state).toBe('closed')
+    // And the readers that used to throw now cope.
+    expect(sessionStats(loaded)).toEqual({ total: 1, present: 0, absent: 0, unchecked: 1 })
+  })
+
+  it('keeps a non-object entries map from reaching the readers', () => {
+    saveRoster('1MAUT', [student('A1')])
+    localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify([
+      { id: 'x', specialities: ['1MAUT'], rosterIds: ['A1'], entries: 'corrupted' },
+    ]))
+
+    expect(loadSessions()[0].entries).toEqual({})
+  })
+
   it('round-trips through storage', () => {
     saveRoster('1MAUT', [student('A1')])
     const session = createSession(details)
