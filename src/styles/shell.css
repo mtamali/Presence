@@ -127,7 +127,7 @@
 .content-wrap {
   max-width: 1450px;
   margin: auto;
-  padding: 25px 17px calc(var(--tap) + env(safe-area-inset-bottom, 0) + var(--space-5));
+  padding: 25px 17px calc(var(--tap) + env(safe-area-inset-bottom, 0px) + var(--space-5));
 }
 
 .page-title-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 25px; margin-bottom: 23px; }
@@ -276,7 +276,7 @@
 .toast {
   position: fixed;
   /* Clear of the fixed tab bar on phone; 48rem drops it back to the corner. */
-  bottom: calc(var(--tap) + env(safe-area-inset-bottom, 0) + var(--space-3));
+  bottom: calc(var(--tap) + env(safe-area-inset-bottom, 0px) + var(--space-3));
   right: 24px;
   z-index: 40;
   max-width: calc(100% - 48px);
