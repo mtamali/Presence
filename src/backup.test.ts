@@ -105,6 +105,20 @@ describe('decodeBackup', () => {
       [SESSION_STORAGE_KEY, TIMETABLE_STORAGE_KEY, ROSTER_STORAGE_KEY].sort(),
     )
   })
+
+  it('rejects a well-formed envelope that mentions no store at all', () => {
+    // Distinct from a backup of an empty device, which records four nulls and
+    // restores faithfully. This file would pass every other check, show four
+    // zeroes, promise to replace nothing, and change nothing.
+    const hollow = JSON.stringify({
+      format: 'presence-backup', version: BACKUP_VERSION, createdAt: '', stores: {},
+    })
+    const result = decodeBackup(hollow)
+
+    expect(result.ok).toBe(false)
+    if (result.ok) return
+    expect(result.error).toMatch(/nothing to restore/i)
+  })
 })
 
 describe('applyBackup', () => {

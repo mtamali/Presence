@@ -141,11 +141,19 @@ export function decodeBackup(text: string): DecodeResult {
   }
 
   const stores = parsed.stores as Partial<Record<BackupKey, unknown>>
+  const missing = BACKUP_KEYS.filter(key => !(key in stores))
+  // Every store absent is not a backup of an empty device — that file would
+  // record four nulls. It is a file that says nothing, and restoring it would
+  // change nothing while claiming to have replaced the term.
+  if (missing.length === BACKUP_KEYS.length) {
+    return { ok: false, error: 'That backup holds none of this app’s data, so there is nothing to restore from it.' }
+  }
+
   return {
     ok: true,
     backup: { format: BACKUP_FORMAT, version, createdAt: String(parsed.createdAt ?? ''), stores },
     counts: countStores(stores),
-    missing: BACKUP_KEYS.filter(key => !(key in stores)),
+    missing,
   }
 }
 

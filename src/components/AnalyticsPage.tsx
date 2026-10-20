@@ -1,5 +1,6 @@
 import { useMemo, useState, type ReactNode } from 'react'
 import { CheckCircle2, ChevronDown, Percent, Users, X } from 'lucide-react'
+import { BackupPanel } from './BackupPanel'
 import { Stat } from './StatGrid'
 import { TypeBadge } from './Tags'
 import { PERIODS, byCourse, bySpeciality, byStudent, overview, withinPeriod, type Period, type Tally } from '../analytics'
@@ -37,11 +38,12 @@ function band(tally: Tally) {
  * a fourth tab: four chips do not fit 375px, and the headline is wanted
  * whichever breakdown is open.
  */
-export function AnalyticsPage({ sessions, rosterVersion }: {
+export function AnalyticsPage({ sessions, rosterVersion, onToast }: {
   /** Every session, not one class's — this screen is deliberately global. */
   sessions: AttendanceSession[]
   /** Bumped by App when the roster in localStorage changes. See AttendancePage. */
   rosterVersion: number
+  onToast: (message: string) => void
 }) {
   const [breakdown, setBreakdown] = useState<Breakdown>('classes')
   const [classFilter, setClassFilter] = useState<Speciality | 'all'>('all')
@@ -75,6 +77,10 @@ export function AnalyticsPage({ sessions, rosterVersion }: {
           roster, and this screen will fill in.
         </div>
       </section>
+      {/* Deliberately outside the early return's guard: a device with a filled
+          timetable and no sessions yet is exactly the one whose work is most
+          worth moving somewhere safe. */}
+      <BackupPanel onToast={onToast} />
     </>
   }
 
@@ -175,6 +181,10 @@ export function AnalyticsPage({ sessions, rosterVersion }: {
       </ul>
     </section>
     </>}
+
+    {/* Outside the period guard: a narrow period showing nothing is no reason
+        to hide the way to save everything. */}
+    <BackupPanel onToast={onToast} />
   </>
 }
 

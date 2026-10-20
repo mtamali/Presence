@@ -172,6 +172,20 @@
 }
 .button[aria-disabled="true"]:hover { background: #c3ced2; transform: none; }
 
+/* Restoring a backup is the only action that can discard a term, so it is the
+   only button that looks like it. The red is the one .modal-error already uses:
+   white on it measures 6.13:1, where the softer #b85d50 this started as came to
+   4.45 — under AA, and this button's label is the last warning there is. */
+.button-danger { background: #a4423c; color: white; box-shadow: 0 6px 13px rgba(164, 66, 60, .20); }
+.button-danger:hover { background: #8e2f22; }
+
+/* A genuinely disabled button, as opposed to the aria-disabled one above. Used
+   where the block is momentary and has no explanation to offer — the backup
+   button while the share sheet is open — so unlike that rule it owes no route
+   back to a message. */
+.button:disabled { box-shadow: none; cursor: not-allowed; opacity: .55; }
+.button:disabled:hover { transform: none; }
+
 /* The attendance page carries two title-row actions. Wrapping them keeps
    .page-title-row's space-between pinning the title to the left edge. */
 .page-actions { display: flex; gap: var(--space-2); flex: none; }

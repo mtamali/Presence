@@ -103,6 +103,20 @@
 .rate-type { display: inline-flex; align-items: center; gap: 5px; }
 .rate-type small { color: #6d7d87; font-size: 11px; font-weight: 700; }
 
+/* ---- Backup ---------------------------------------------------------------
+   Last on the screen, and the only panel here that writes anything. Set apart
+   by the gap above it rather than by a different colour: it is a utility, not
+   a warning, and the warning belongs on the confirm step where the data is
+   actually at risk. */
+
+.backup-panel { margin-top: var(--space-5); }
+/* Prose, not the one-line hint the other heads carry — this is where the
+   teacher learns the data lives nowhere else. */
+.backup-panel .analytics-head p { max-width: 54ch; line-height: 1.55; }
+
+/* Stacked and full-width on a phone, so neither is the narrow one. */
+.backup-actions { padding: 18px; display: grid; gap: var(--space-2); }
+
 /* ========================================================================
    48rem — the head and its tools share one line.
    ===================================================================== */
@@ -111,4 +125,7 @@
   .analytics-tools { flex-direction: row; align-items: center; margin-top: 0; }
   .analytics-tools .segmented { grid-template-columns: repeat(3, minmax(82px, 1fr)); }
   .rate-row { padding: 15px 23px; }
+  /* Side by side once there is room, backup first: it is the one a teacher
+     reaches for repeatedly, where restore is a once-a-device action. */
+  .backup-actions { display: flex; flex-wrap: wrap; padding: 18px 23px; }
 }

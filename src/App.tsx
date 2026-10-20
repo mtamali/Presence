@@ -196,7 +196,7 @@ function App() {
       {/* Every session, not `classSessions`: this screen compares the classes
           against each other, so narrowing it to one would empty three of its
           four views. */}
-      {page === 'analytics' && <AnalyticsPage sessions={sessions} rosterVersion={rosterVersion} />}
+      {page === 'analytics' && <AnalyticsPage sessions={sessions} rosterVersion={rosterVersion} onToast={setToast} />}
 
       {page === 'courses' && <CoursesPage
         speciality={speciality}

@@ -73,7 +73,35 @@
 }
 .modal-note svg { color: #0b898a; flex: none; }
 
+/* The warning variant, for the one note that is not reassurance. Amber rather
+   than red because the red is spent on the button beneath it, and a note the
+   same colour as the action it warns about reads as part of it. Text 5.21:1,
+   icon 3.83:1 — the icon has to clear 3:1 as non-text UI, which the first
+   amber tried (#b7833e, 2.99) did not.
+   After .modal-note, so these win on source order at equal specificity. */
+.modal-note-warn { background: #fdf1e6; border-color: #f2d2a4; color: #8e5a1e; align-items: flex-start; }
+.modal-note-warn svg { color: #a4702f; margin-top: 1px; }
+
 .modal-error { margin: var(--space-2) 0 0; font-size: 12px; line-height: 1.5; color: #a4423c; }
+
+/* What a backup file contains, read out of the file and shown before anything
+   is written. Boxed because these four numbers are the evidence the teacher is
+   being asked to act on, not a caption: they belong to the file on offer, not
+   to the device. Figures in the display face so they scan as quantities.
+   #5e717c on #f7fafa is 4.85:1 — AA at this size. */
+.backup-counts {
+  list-style: none;
+  margin: 0 0 var(--space-3);
+  padding: 13px 15px;
+  background: #f7fafa;
+  border: 1px solid #e9eff0;
+  border-radius: 10px;
+  display: grid;
+  gap: 7px;
+  font-size: 12px;
+  color: #5e717c;
+}
+.backup-counts b { font: 800 13px var(--font-display); color: var(--ink); margin-right: 3px; }
 
 /* Full-width stacked buttons on phone — single-column grid puts the primary
    action last, nearest the thumb. They pair up and right-align from 48rem. */
