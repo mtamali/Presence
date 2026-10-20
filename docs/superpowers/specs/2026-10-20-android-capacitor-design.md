@@ -84,7 +84,7 @@ if this is ever distributed.
 | `src/index.css` | `@fontsource/manrope`, `@fontsource/dm-sans` imports | replaces the CDN; OFL, versioned via npm |
 | `src/csv.ts:70-77` | branch `exportSessionCsv` on platform | fixes the one silent break |
 | `src/App.tsx` | back-button handler, StatusBar, backup/restore entry points | Android conventions |
-| `.gitignore` | Gradle build outputs | `android/build`, `android/app/build`, `.gradle` |
+| ~~`.gitignore`~~ | ~~Gradle build outputs~~ | **not needed** — `cap add android` generates `android/.gitignore`, which already covers `/build`, `.gradle`, `local.properties`, `app/src/main/assets/public` and the generated `capacitor.config.json`. Verified with `git add -An android`: 62 files, no build output |
 
 `buildSessionCsv` and `csvFilename` are untouched and stay pure — only the
 side-effecting `exportSessionCsv` learns about platforms.
@@ -123,6 +123,33 @@ a finished term becomes routine instead of a crash.
   only at `min-width: 48rem`.
 - Status bar `#112c3b`, matching the existing `theme-color`.
 - Icon generated from an SVG via `@capacitor/assets`.
+
+### Status bar, as built
+
+`StatusBar.setBackgroundColor` alone does not deliver this. From Android 15
+(targetSdk 35+) edge-to-edge is enforced: `setOverlaysWebView` and
+`setBackgroundColor` become no-ops and the WebView draws behind the status bar.
+Nothing in this layout is sticky, so the page scrolls underneath — which puts
+the clock over the navy brand header at rest and over white cards a moment
+later. No single icon colour reads against both.
+
+So the navy arrives by two routes and both are kept:
+
+- **Before 15** — `setBackgroundColor('#112c3b')` paints a real status bar band
+  and the WebView starts below it.
+- **15 and later** — `body::before` in `base.css` pins an opaque
+  `var(--navy)` band of `env(safe-area-inset-top)` at `z-index: 70`, above the
+  storage alert (60), in front of whatever passes beneath.
+
+Same colour either way, so the icons are set light once with
+`Style.Dark` — which in this API means *light text for dark backgrounds*.
+`.sidebar` pads itself by the same inset (and `.topbar` does, from 48rem up,
+where the sidebar becomes a column) so the brand is not clipped by that band.
+In a browser the inset is `0px` and none of this paints.
+
+Lowering targetSdk to 34 to opt out was considered and rejected: it defers the
+problem to the next Play requirement bump and leaves the app looking dated on
+current devices.
 
 ## Phasing
 
