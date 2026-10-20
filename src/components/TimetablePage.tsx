@@ -4,7 +4,7 @@ import { AssignCellModal } from './modals/AssignCellModal'
 import { StartSessionModal } from './modals/StartSessionModal'
 import { ClassTags, TypeBadge } from './Tags'
 import { findCourse, type Course } from '../courses'
-import { sessionForCell, type AttendanceSession, type SessionDetails } from '../sessions'
+import { lastTeacherName, sessionForCell, type AttendanceSession, type SessionDetails } from '../sessions'
 import {
   DAYS, SLOTS, clearEntry, dateForDayInCurrentWeek, entryAt, setEntry, todayDayIndex,
   type DayIndex, type SlotIndex, type TimetableEntry,
@@ -35,9 +35,7 @@ export function TimetablePage({ entries, courses, sessions, onChange, onToast, o
 
   const open = cell ? entryAt(cell.day, cell.slot, entries) : undefined
   const openCourse = open ? findCourse(open.courseCode, courses) : undefined
-  // The teacher name carries over from the last session created, so it is typed
-  // once a term rather than once a slot.
-  const lastTeacher = sessions.map(item => item.teacher).find(name => Boolean(name)) || ''
+  const lastTeacher = lastTeacherName(sessions)
 
   function save(entry: TimetableEntry) {
     onChange(setEntry(entry, entries))

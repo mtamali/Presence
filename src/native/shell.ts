@@ -4,8 +4,12 @@ import { App as NativeApp } from '@capacitor/app'
 import { StatusBar, Style } from '@capacitor/status-bar'
 import type { Page } from '../components/AppShell'
 
-/** Where the back button lands before the next press leaves the app. */
-const HOME: Page = 'timetable'
+/**
+ * Where the back button lands before the next press leaves the app — the same
+ * screen the launcher icon opens into, which is what makes the gesture mean
+ * "back to the front door" rather than "back to some other page".
+ */
+const HOME: Page = 'home'
 
 /**
  * Android shell behaviour: status bar appearance and the hardware back button.

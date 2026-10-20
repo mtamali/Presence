@@ -1,0 +1,205 @@
+/* The launch screen: today's date, today's slots, and one tap into each. */
+
+.home { display: grid; gap: var(--space-5); }
+
+/* ---- Hero ----------------------------------------------------------------
+   Paper, not espresso. The brand slab is already the bar directly above this
+   on phone, and a second dark panel under it would read as one tall header
+   with a seam rather than as a page that has begun.
+
+   `--shadow` rather than `--emboss`: the hero is the only block on this screen
+   that is not pressable, and the depth vocabulary is what says so. Everything
+   below it that can be tapped is embossed. */
+.home-hero {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--face);
+  box-shadow: var(--shadow);
+}
+
+/* The launcher tile at content size. It repeats the 35px mark in the chrome
+   above, which is the point: on Android this screen is what the icon opens
+   into, so the tile the teacher tapped is the first thing they see again. The
+   radius is the chrome's 12px, not the 22% the SVG bakes in for a launcher. */
+.home-logo {
+  width: 48px;
+  height: 48px;
+  flex: none;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(var(--shade), .18);
+}
+
+.home-hero-text { min-width: 0; }
+/* The h1 of this page. App suppresses .page-title-row on home, so the date is
+   the heading rather than sitting under one. */
+.home-date { font-size: 20px; font-weight: 800; letter-spacing: -.05em; line-height: 1.2; margin-bottom: 7px; }
+.home-lede { margin: 0; font-size: 12px; line-height: 1.5; color: var(--muted); }
+
+/* ---- Today's slots ------------------------------------------------------- */
+
+.home-list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-2); }
+
+/* Two columns and two rows on phone: the time holds its own column down the
+   left so the rows read as a schedule, and the state chip drops below the
+   course rather than squeezing it. A 375px phone leaves the body ~245px, which
+   is a course name and a class tag — enough, where a third column would not
+   be. From 48rem the chip moves up beside it, right-aligned.
+
+   Embossed because it is a button, and the only kind of button on this screen
+   that does something consequential: it starts or opens a session. */
+.home-row {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 46px minmax(0, 1fr);
+  grid-template-areas:
+    "time body"
+    "time state";
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  text-align: left;
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--face);
+  box-shadow: var(--emboss);
+  transition: box-shadow .13s ease, transform .13s ease;
+}
+
+/* Mouse only, same reasoning as .day-chip and .button: the rule moves the row
+   rather than only recolouring it, and a touch WebView leaves :hover on
+   whatever was tapped last — so unguarded, the row just tapped would stay
+   visibly lifted on the screen the teacher returns to. */
+@media (hover: hover) {
+  .home-row:hover { transform: translateY(-1px); box-shadow: var(--emboss-lift); }
+}
+.home-row:active { transform: translateY(1px); background: var(--face-pressed); box-shadow: var(--inset); }
+
+.home-row-time { grid-area: time; display: grid; gap: 1px; }
+.home-row-time strong { font: 800 13px var(--font-display); color: var(--ink); letter-spacing: -.02em; }
+.home-row-time small { font-size: 10px; font-weight: 600; color: var(--muted); }
+
+.home-row-body { grid-area: body; display: grid; gap: 4px; min-width: 0; }
+.home-row-head { display: flex; align-items: center; gap: var(--space-2); }
+.home-row-code { font: 800 13px var(--font-display); color: var(--ink); letter-spacing: -.02em; }
+.home-row-name { font-size: 12px; color: var(--ink); overflow-wrap: anywhere; }
+.home-row-meta { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-2); }
+.home-row-room { font-size: 11px; color: var(--muted); }
+
+.home-row-state {
+  grid-area: state;
+  justify-self: start;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 26px;
+  padding: 0 9px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .02em;
+}
+.home-row-state svg { flex: none; }
+
+/* Only one of the three reads as a pill, and that is the design: the state a
+   teacher can act on is the only one that looks like a control.
+
+   The arithmetic forces it. A beige or pale-green tint on this beige face
+   measures 1.05:1 to 1.07:1 against it, and a --line hairline around that tint
+   reaches only 1.20:1 — so for the two record states neither the fill nor the
+   edge is a visible shape, and there is nothing to be gained by pretending
+   otherwise. Their words carry the whole message instead, both at AA: --muted
+   on --surface is 5.26:1, --ok-fg on --ok-bg is 4.54:1. The faint fill and the
+   hairline group each label with its icon; they are not asked to mean anything,
+   and the hairline is the same soft edge every other panel in the app uses.
+
+   Idle is the exception, because it is the call to action — white on
+   --accent-strong, the primary button's own pair: 6.92:1 for the label and
+   5.65:1 for the fill against the face, which is what makes it read as a
+   button rather than as a caption. Closed takes the green the roster already
+   means "present" by. */
+.home-row[data-state="idle"] .home-row-state { background: var(--accent-strong); color: #fff; }
+.home-row[data-state="open"] .home-row-state { background: var(--surface); border-color: var(--line); color: var(--muted); }
+.home-row[data-state="closed"] .home-row-state { background: var(--ok-bg); border-color: #bdd9b4; color: var(--ok-fg); }
+
+/* ---- Nothing on today ---------------------------------------------------
+   The dent the timetable's empty cells use, at panel size: dashed, recessed,
+   and the darkest paper tone in the app. An empty day and an empty slot are
+   the same absence, so they look the same.
+
+   The colour here is the icon's — the two paragraphs set their own. --accent
+   reaches 4.41:1 on this fill, under AA for text but well past the 3:1 that
+   1.4.11 asks of a graphic. */
+.home-empty {
+  display: grid;
+  justify-items: center;
+  text-align: center;
+  gap: var(--space-2);
+  padding: var(--space-6) var(--space-4);
+  border: 1px dashed var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--idle-bg);
+  box-shadow: var(--inset);
+  color: var(--accent);
+}
+.home-empty-title { margin: 0; font: 800 14px var(--font-display); color: var(--ink); letter-spacing: -.03em; }
+.home-empty-note { margin: 0 0 var(--space-2); max-width: 26rem; font-size: 12px; line-height: 1.5; color: var(--muted); }
+
+/* ---- The rest of the app -------------------------------------------------
+   Three tiles, embossed like the rows above because they are also buttons —
+   but unfilled and quieter, because none of them changes anything. They
+   duplicate the nav deliberately: on phone the nav is a fixed tab bar that
+   the hero has scrolled past by the time the teacher reaches the foot. */
+.home-links { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-2); }
+.home-link {
+  min-height: 4.5rem;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 6px;
+  padding: var(--space-3) var(--space-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--face);
+  box-shadow: var(--emboss);
+  /* .button-light's label, on the same pale warm face: 7.07:1 here. */
+  color: #5b4b32;
+  font: 700 11px var(--font-body);
+  transition: box-shadow .13s ease, transform .13s ease;
+}
+.home-link svg { color: var(--accent); }
+@media (hover: hover) {
+  .home-link:hover { transform: translateY(-1px); box-shadow: var(--emboss-lift); }
+}
+.home-link:active { transform: translateY(1px); background: var(--face-pressed); box-shadow: var(--inset); }
+
+/* ========================================================================
+   48rem — the hero can afford a bigger date, and each row fits on one line.
+   ===================================================================== */
+@media (min-width: 48rem) {
+  .home { gap: var(--space-6); }
+
+  .home-hero { gap: var(--space-5); padding: var(--space-5); }
+  .home-logo { width: 56px; height: 56px; border-radius: 14px; }
+  .home-date { font-size: 27px; }
+  .home-lede { font-size: 13px; }
+
+  .home-row {
+    grid-template-columns: 58px minmax(0, 1fr) auto;
+    grid-template-areas: "time body state";
+    gap: var(--space-4);
+    padding: var(--space-3) var(--space-4);
+  }
+  .home-row-state { justify-self: end; }
+  .home-row-name { font-size: 13px; }
+
+  /* Three tiles side by side stop being tiles and become a stretched band at
+     desktop width, so they keep their phone proportions and sit left. */
+  .home-links { max-width: 34rem; }
+  .home-link { font-size: 12px; }
+}

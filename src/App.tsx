@@ -4,6 +4,7 @@ import { AppShell, pageCopy, type Page } from './components/AppShell'
 import { AnalyticsPage } from './components/AnalyticsPage'
 import { AttendancePage } from './components/AttendancePage'
 import { CoursesPage } from './components/CoursesPage'
+import { HomePage } from './components/HomePage'
 import { TimetablePage } from './components/TimetablePage'
 import { SpecialityPicker } from './components/SpecialityPicker'
 import { CreateSessionModal } from './components/modals/CreateSessionModal'
@@ -29,8 +30,9 @@ function App() {
   // it refuses to delete a course a cell still points at.
   const [entries, setEntries] = useState<TimetableEntry[]>(loadTimetable)
   const [speciality, setSpeciality] = useState<Speciality>('1MAUT')
-  // The timetable is where a teaching day starts, and attendance is one tap away.
-  const [page, setPage] = useState<Page>('timetable')
+  // Every launch lands on Today: the teaching day, and one tap into each of its
+  // sessions. The timetable is a week at a time and stays one tap away.
+  const [page, setPage] = useState<Page>('home')
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [createOpen, setCreateOpen] = useState(false)
   const [importOpen, setImportOpen] = useState(false)
@@ -67,12 +69,14 @@ function App() {
   }, [toast])
 
   // Status bar and the Android back button. No-op outside the APK.
-  useNativeShell(page, () => setPage('timetable'))
+  useNativeShell(page, () => setPage('home'))
 
   // With badges retired the flag pins this to false, but the branch is kept so
   // flipping BADGES_ENABLED restores the screen without further edits.
   const showBadges = BADGES_ENABLED && page === 'badges'
-  const copy = pageCopy[page]
+  // Home has no shared title row — it carries its own hero — so it has no entry
+  // in pageCopy, and this ternary is what narrows `page` past that.
+  const copy = page === 'home' ? undefined : pageCopy[page]
   // Inactive students are kept for the import merge and for past sessions, but
   // never offered for marking.
   const storedRoster = useMemo(() => getRoster(speciality), [speciality, rosterVersion])
@@ -156,7 +160,7 @@ function App() {
 
   return (
     <AppShell page={page} onPageChange={setPage} speciality={speciality}>
-      <div className="page-title-row">
+      {copy && <div className="page-title-row">
         <div>
           {/* The fifth page is what tipped these three from ternaries into the
               Record beside `destinations`, as the note here used to predict. */}
@@ -173,12 +177,22 @@ function App() {
             <button className="button button-light page-action" onClick={() => setImportOpen(true)}><Upload size={19} /><span className="page-action-label">Import roster</span></button>
             <button className="button button-primary page-action" onClick={() => setCreateOpen(true)}><Plus size={19} /><span className="page-action-label">New session</span></button>
           </div>}
-      </div>
+      </div>}
 
-      {/* Hidden on the timetable and on analytics: both show every class at
-          once, so a class filter there would promise filtering it does not do.
-          Analytics carries its own filter, inside the one list that needs it. */}
-      {page !== 'timetable' && page !== 'analytics' && <SpecialityPicker speciality={speciality} onChange={setSpeciality} progress={showBadges ? undefined : progress} />}
+      {/* Hidden on the timetable, analytics and home: all three show every class
+          at once, so a class filter there would promise filtering it does not
+          do. Analytics carries its own filter, inside the one list that needs
+          it, and home is scoped to the day rather than to a class. */}
+      {page !== 'home' && page !== 'timetable' && page !== 'analytics' && <SpecialityPicker speciality={speciality} onChange={setSpeciality} progress={showBadges ? undefined : progress} />}
+
+      {page === 'home' && <HomePage
+        entries={entries}
+        courses={courses}
+        sessions={sessions}
+        onStart={startFromCell}
+        onOpenSession={openSession}
+        onGo={setPage}
+      />}
 
       {page === 'timetable' && <TimetablePage
         entries={entries}

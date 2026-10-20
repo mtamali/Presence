@@ -1,12 +1,13 @@
 import type { ReactNode } from 'react'
-import { BarChart3, BookMarked, CalendarClock, CalendarDays, GraduationCap, LayoutGrid, QrCode, ShieldCheck } from 'lucide-react'
+import { BarChart3, BookMarked, CalendarClock, CalendarDays, GraduationCap, LayoutGrid, QrCode, ShieldCheck, Sun } from 'lucide-react'
 import { BADGES_ENABLED } from '../config'
 import { formatDate, localToday } from '../format'
 import type { Speciality } from '../roster'
 
-export type Page = 'timetable' | 'attendance' | 'courses' | 'analytics' | 'badges'
+export type Page = 'home' | 'timetable' | 'attendance' | 'courses' | 'analytics' | 'badges'
 
 const destinations: { page: Page; label: string; icon: ReactNode }[] = [
+  { page: 'home', label: 'Today', icon: <Sun size={19} /> },
   { page: 'timetable', label: 'Timetable', icon: <CalendarClock size={19} /> },
   { page: 'attendance', label: 'Attendance', icon: <LayoutGrid size={19} /> },
   { page: 'courses', label: 'Courses', icon: <BookMarked size={19} /> },
@@ -23,8 +24,12 @@ if (BADGES_ENABLED) {
  * The title block each page carries. It lives beside `destinations` because
  * both are per-page metadata — and because at five pages the nested ternaries
  * this replaces in App.tsx had stopped being readable.
+ *
+ * Home is excluded rather than given an unused entry: it carries its own hero
+ * with the date as its heading, so there is no shared title row to fill. The
+ * `Exclude` is what makes that a compile error if the two ever disagree.
  */
-export const pageCopy: Record<Page, { eyebrow: string; title: string; subtitle: string }> = {
+export const pageCopy: Record<Exclude<Page, 'home'>, { eyebrow: string; title: string; subtitle: string }> = {
   timetable: {
     eyebrow: 'Weekly schedule',
     title: 'Your week, slot by slot.',

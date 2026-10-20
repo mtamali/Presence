@@ -59,6 +59,18 @@ export function activeRosterIds(list: Speciality[]): string[] {
   return ids
 }
 
+/**
+ * The teacher name to prefill, carried from the most recent session that has
+ * one. Typed once a term rather than once a slot.
+ *
+ * Shared because two screens start sessions — the timetable's confirm sheet and
+ * the landing page's one-tap rows — and a name that carried over on one but not
+ * the other would look like the app had forgotten.
+ */
+export function lastTeacherName(sessions: AttendanceSession[]): string {
+  return sessions.map(item => item.teacher).find(name => Boolean(name)) || ''
+}
+
 export function createSession(details: SessionDetails): AttendanceSession {
   return {
     ...details,
