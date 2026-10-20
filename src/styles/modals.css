@@ -2,11 +2,11 @@
 
 /* A sheet anchored to the bottom of the screen, so the confirm button lands in
    the thumb arc instead of mid-screen. It becomes a centred dialog at 48rem. */
-.modal-backdrop { position: fixed; inset: 0; background: rgba(9, 29, 39, .56); z-index: 20; display: grid; align-items: end; }
+.modal-backdrop { position: fixed; inset: 0; background: rgba(42, 34, 24, .56); z-index: 20; display: grid; align-items: end; }
 .modal {
   background: var(--surface);
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-  box-shadow: 0 24px 85px rgba(5, 30, 40, .22);
+  box-shadow: 0 24px 85px rgba(42, 34, 24, .22);
   width: 100%;
   max-height: 92vh;
   overflow: auto;
@@ -17,28 +17,28 @@
 }
 
 .modal-header { display: flex; align-items: start; justify-content: space-between; }
-.modal-icon { width: 43px; height: 43px; border-radius: 11px; color: #078787; background: #e7f5f3; display: grid; place-items: center; }
-.icon-close { border: 0; background: #f3f6f7; color: #748c96; border-radius: 8px; width: var(--tap); height: var(--tap); display: grid; place-items: center; }
-.icon-close:hover { background: #e7eef0; }
+.modal-icon { width: 43px; height: 43px; border-radius: 11px; color: #653625; background: #f3dad7; display: grid; place-items: center; }
+.icon-close { border: 0; background: #f4ece4; color: #947f64; border-radius: 8px; width: var(--tap); height: var(--tap); display: grid; place-items: center; }
+.icon-close:hover { background: #f0e2d5; }
 .modal h2 { font-size: 22px; letter-spacing: -.045em; margin: 19px 0 5px; }
-.modal-subtitle { font-size: 12px; color: #83949d; line-height: 1.6; margin-bottom: 23px; }
+.modal-subtitle { font-size: 12px; color: var(--muted); line-height: 1.6; margin-bottom: 23px; }
 
 /* ---- Fields -------------------------------------------------------------- */
 
 .field { display: flex; flex-direction: column; gap: 7px; margin-bottom: 17px; flex: 1; }
-.field span { font-size: 11px; font-weight: 700; color: #38525f; }
-.field b { color: #e16f62; }
+.field span { font-size: 11px; font-weight: 700; color: #5d4d36; }
+.field b { color: var(--no-fg); }
 .field input {
   min-height: var(--tap);
   width: 100%;
-  border: 1px solid #dfe8eb;
+  border: 1px solid #ecddcc;
   border-radius: 7px;
   padding: 0 11px;
-  color: #274451;
+  color: #4d3d27;
   background: white;
   font-size: 12px;
 }
-.field input::placeholder { color: #adbac0; }
+.field input::placeholder { color: var(--muted); }
 .field-row { display: block; gap: 13px; }
 
 /* The date and its shortcut share one line. `min-width: 0` lets the input shrink
@@ -50,19 +50,19 @@
 .today-button {
   flex: none;
   padding: 0 13px;
-  border: 1px solid #dfe8eb;
+  border: 1px solid #ecddcc;
   border-radius: 7px;
-  background: #f4f9f9;
-  color: var(--teal);
+  background: #f7e9e4;
+  color: var(--accent);
   font-size: 11px;
   font-weight: 700;
 }
-.today-button:hover { background: #e9f3f3; }
+.today-button:hover { background: #f3ded7; }
 
 .modal-note {
-  background: #f1f8f8;
-  border: 1px solid #e1efef;
-  color: #66858a;
+  background: #f6e7e1;
+  border: 1px solid #f1d7ce;
+  color: #7d6553;
   border-radius: 8px;
   padding: 12px;
   display: flex;
@@ -71,7 +71,7 @@
   font-size: 11px;
   margin: 3px 0 23px;
 }
-.modal-note svg { color: #0b898a; flex: none; }
+.modal-note svg { color: #6a3927; flex: none; }
 
 /* The warning variant, for the one note that is not reassurance. Amber rather
    than red because the red is spent on the button beneath it, and a note the
@@ -88,32 +88,30 @@
    is written. Boxed because these four numbers are the evidence the teacher is
    being asked to act on, not a caption: they belong to the file on offer, not
    to the device. Figures in the display face so they scan as quantities.
-   #5e717c on #f7fafa is 4.85:1 — AA at this size. */
+   #766953 on #f7ece8 is 4.63:1 — AA at this size. */
 .backup-counts {
   list-style: none;
   margin: 0 0 var(--space-3);
   padding: 13px 15px;
-  background: #f7fafa;
-  border: 1px solid #e9eff0;
+  background: #f7ece8;
+  border: 1px solid #eee2d9;
   border-radius: 10px;
   display: grid;
   gap: 7px;
   font-size: 12px;
-  color: #5e717c;
+  color: #766953;
 }
 .backup-counts b { font: 800 13px var(--font-display); color: var(--ink); margin-right: 3px; }
 
 /* Full-width stacked buttons on phone — single-column grid puts the primary
    action last, nearest the thumb. They pair up and right-align from 48rem. */
-.modal-actions { border-top: 1px solid #e9eff0; padding-top: 20px; display: grid; gap: var(--space-2); }
+.modal-actions { border-top: 1px solid #eee2d9; padding-top: 20px; display: grid; gap: var(--space-2); }
 
 /* ---- Roster import ------------------------------------------------------- */
 
-.import-modal .button:disabled { background: #cbd9da; box-shadow: none; color: #f9fbfb; transform: none; }
-
 .upload-field {
-  border: 1px dashed #a8c8ca;
-  background: #f5faf9;
+  border: 1px dashed #d2a48f;
+  background: #f8e7e6;
   border-radius: 10px;
   min-height: 112px;
   display: flex;
@@ -124,27 +122,27 @@
   gap: 6px;
   position: relative;
   padding: 18px;
-  color: #0a8184;
+  color: #653825;
   cursor: pointer;
 }
 .upload-field strong { font-size: 12px; }
-.upload-field span { font-size: 10px; color: #789198; line-height: 1.5; max-width: 390px; }
+.upload-field span { font-size: 10px; color: var(--muted); line-height: 1.5; max-width: 390px; }
 .upload-field input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; }
 
-.import-error { color: #bb5c55; background: #fff0ec; border-radius: 7px; padding: 10px 12px; font-size: 11px; margin: 13px 0; }
+.import-error { color: #ad554f; background: #fff0ec; border-radius: 7px; padding: 10px 12px; font-size: 11px; margin: 13px 0; }
 
-.import-preview { margin: 18px 0; max-height: 290px; overflow: auto; border: 1px solid #e2ebed; border-radius: 8px; }
-.import-preview-counts { display: flex; justify-content: space-around; background: #f7fafb; border-bottom: 1px solid #e2ebed; padding: 13px 9px; }
-.import-preview-counts span { font-size: 10px; color: #7d939c; }
-.import-preview-counts strong { display: block; color: #1c4553; font-size: 16px; }
+.import-preview { margin: 18px 0; max-height: 290px; overflow: auto; border: 1px solid #eeddcf; border-radius: 8px; }
+.import-preview-counts { display: flex; justify-content: space-around; background: #f8f0e8; border-bottom: 1px solid #eeddcf; padding: 13px 9px; }
+.import-preview-counts span { font-size: 10px; color: var(--muted); }
+.import-preview-counts strong { display: block; color: #4e361d; font-size: 16px; }
 .import-preview-list, .import-issues { padding: 13px 16px; }
-.import-preview-list h3, .import-issues h3 { font-size: 11px; margin: 0 0 10px; color: #405a65; }
-.import-preview-list > div { display: block; justify-content: space-between; gap: 15px; border-top: 1px solid #edf2f3; padding: 8px 0; font-size: 10px; color: #33525f; }
-.import-preview-list > div span:last-child { display: block; text-align: left; margin-top: 4px; color: #147f83; overflow-wrap: anywhere; }
-.import-preview-list small { color: #91a4ac; margin-left: 4px; }
-.import-preview-list p, .import-issues p { font-size: 10px; color: #899da5; margin: 8px 0 0; }
-.import-issues { border-top: 1px solid #e2ebed; background: #fffbf9; }
-.import-issues p { color: #a16a60; line-height: 1.5; }
+.import-preview-list h3, .import-issues h3 { font-size: 11px; margin: 0 0 10px; color: #64533d; }
+.import-preview-list > div { display: block; justify-content: space-between; gap: 15px; border-top: 1px solid #f1e6dd; padding: 8px 0; font-size: 10px; color: #5d4a31; }
+.import-preview-list > div span:last-child { display: block; text-align: left; margin-top: 4px; color: #6b3c28; overflow-wrap: anywhere; }
+.import-preview-list small { color: var(--muted); margin-left: 4px; }
+.import-preview-list p, .import-issues p { font-size: 10px; color: var(--muted); margin: 8px 0 0; }
+.import-issues { border-top: 1px solid #eeddcf; background: #fffbf9; }
+.import-issues p { color: #99645b; line-height: 1.5; }
 .import-issues strong { color: #774f49; }
 
 /* ========================================================================

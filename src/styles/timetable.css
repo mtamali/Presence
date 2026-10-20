@@ -7,8 +7,8 @@
   height: 19px;
   padding: 0 6px;
   border-radius: 5px;
-  background: #eef3f5;
-  color: #4f6975;
+  background: #f5eadc;
+  color: #76644a;
   font-size: 9px;
   font-weight: 800;
   letter-spacing: .02em;
@@ -29,7 +29,7 @@
   font: 700 12px var(--font-body);
   letter-spacing: -.01em;
 }
-.chip-toggle[aria-pressed="true"] { background: var(--teal); border-color: var(--teal); color: #fff; }
+.chip-toggle[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
 
 /* ---- Course list --------------------------------------------------------- */
 
@@ -59,7 +59,7 @@
   display: grid;
   place-items: center;
 }
-.icon-button:hover { color: var(--teal); border-color: #cfe3e4; }
+.icon-button:hover { color: var(--accent); border-color: #eac7b7; }
 
 .page-footer-action { margin-top: var(--space-3); display: grid; }
 
@@ -90,8 +90,8 @@
   flex: none;
 }
 .type-cr { background: #e9f1fb; color: #3f6aa8; }
-.type-td { background: #eaf4ef; color: #2f7c5f; }
-.type-tp { background: #fdf1e6; color: #a4702f; }
+.type-td { background: #eaf4ef; color: #2e7a5d; }
+.type-tp { background: #fdf1e6; color: #93642a; }
 
 /* ---- Segmented control --------------------------------------------------- */
 
@@ -108,7 +108,7 @@
 }
 .segmented strong { font: 800 13px var(--font-display); color: var(--ink); letter-spacing: -.02em; }
 .segmented span { font-size: 9px; color: var(--muted); }
-.segmented button[aria-pressed="true"] { background: var(--teal); border-color: var(--teal); }
+.segmented button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); }
 .segmented button[aria-pressed="true"] strong,
 .segmented button[aria-pressed="true"] span { color: #fff; }
 
@@ -122,7 +122,7 @@
    chevron sits adrift from it. The roster toolbar's copy stays content-width on
    purpose, so this is scoped to .field rather than fixing .select-wrap itself.
    The type matches `.field input`: these two sit one above the other. */
-.field .select-wrap select { flex: 1; width: 100%; font-size: 12px; color: #274451; }
+.field .select-wrap select { flex: 1; width: 100%; font-size: 12px; color: #4d3d27; }
 
 /* ---- Day strip (phone) --------------------------------------------------- */
 
@@ -133,26 +133,21 @@
    the chosen day is visibly the one that has been pressed.
 
    Both gradients are lit from above, and that is also what keeps the labels
-   readable. White on a teal that *lightened* downward measures 4.11:1 —
-   under AA for 12px bold — so the recess darkens at the lip and settles back
-   to the brand teal instead (4.93:1). The raised label is likewise a notch
-   darker than --muted, which at 4.26:1 on plain white was already below the
-   bar before any gradient existed; #5c6d78 holds 4.76:1 against the foot of
-   the cap. */
+   readable. The recess darkens at the lip and settles back to the brand
+   bronze, so white sits on 5.37:1 at the gradient's lightest point and 12.10:1
+   at its darkest. The raised label is measured against the *foot* of its cap
+   rather than the crown, since that is where the type lands: #746752 holds
+   4.51:1 there and 5.44:1 at the top. */
 .day-chip {
   min-height: var(--tap);
   padding: 0 var(--space-4);
   flex: 1 0 auto;
   border: 1px solid var(--line);
   border-radius: 999px;
-  color: #5c6d78;
+  color: #746752;
   font: 700 12px var(--font-body);
-  background: linear-gradient(180deg, #fff 0%, #eef2f4 100%);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, .95),   /* crown highlight */
-    inset 0 -1px 0 rgba(17, 44, 59, .08),     /* underside shade */
-    0 2px 3px rgba(17, 44, 59, .10),          /* contact shadow */
-    0 4px 8px rgba(17, 44, 59, .06);          /* ambient falloff */
+  background: var(--face);
+  box-shadow: var(--emboss);
   transition: box-shadow .15s ease, transform .15s ease, background .15s ease;
 }
 
@@ -163,24 +158,14 @@
    an unguarded version would strand a day visibly lifted after every tap. The
    colour-only :hover rules further down this file do not need the same guard. */
 @media (hover: hover) {
-  .day-chip:hover {
-    transform: translateY(-1px);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, .95),
-      inset 0 -1px 0 rgba(17, 44, 59, .08),
-      0 3px 5px rgba(17, 44, 59, .12),
-      0 7px 14px rgba(17, 44, 59, .08);
-  }
+  .day-chip:hover { transform: translateY(-1px); box-shadow: var(--emboss-lift); }
 }
 
 /* Travel is 1px: enough to feel under a thumb, too little to reflow the row. */
 .day-chip:active {
   transform: translateY(1px);
-  background: linear-gradient(180deg, #e9eef1 0%, #f6f8f9 100%);
-  box-shadow:
-    inset 0 2px 4px rgba(17, 44, 59, .18),
-    inset 0 -1px 0 rgba(255, 255, 255, .85),
-    0 1px 1px rgba(17, 44, 59, .05);
+  background: var(--face-pressed);
+  box-shadow: var(--inset);
 }
 
 /* Sunk into the canvas. The inner shadow is what the upper lip casts, and the
@@ -192,12 +177,8 @@
   border-color: transparent;
   color: #fff;
   transform: translateY(1px);
-  background: linear-gradient(180deg, #05696d 0%, var(--teal) 70%, var(--teal) 100%);
-  box-shadow:
-    inset 0 3px 6px rgba(0, 0, 0, .34),
-    inset 0 1px 2px rgba(0, 0, 0, .26),
-    inset 0 -1px 0 rgba(255, 255, 255, .20),
-    0 1px 0 rgba(255, 255, 255, .85);
+  background: linear-gradient(180deg, #502d1e 0%, var(--accent) 70%, var(--accent) 100%);
+  box-shadow: var(--inset-deep);
 }
 
 /* ---- The table ----------------------------------------------------------- */
@@ -221,14 +202,28 @@
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
   background: var(--surface);
+  /* A filled cell holds a course, so it sits on the page as an object; an
+     empty one is the dent that object drops into. The depth is doing work
+     here rather than decorating — it says which cells have something to open
+     before any of their text is read. */
+  box-shadow: var(--emboss);
+  transition: box-shadow .13s ease, transform .13s ease;
 }
-.timetable-cell[data-filled="false"] { background: var(--idle-bg); border-style: dashed; }
+.timetable-cell:active { transform: translateY(1px); box-shadow: var(--inset); }
+.timetable-cell[data-filled="false"] {
+  background: var(--idle-bg);
+  border-style: dashed;
+  box-shadow: var(--inset);
+}
 .cell-time { font-size: 10px; font-weight: 700; color: var(--idle-fg); letter-spacing: .02em; }
 .cell-head { display: flex; align-items: center; gap: var(--space-2); }
 .cell-code { font: 800 13px var(--font-display); color: var(--ink); letter-spacing: -.02em; }
 .cell-name { font-size: 12px; color: var(--ink); overflow-wrap: anywhere; }
 .cell-room { font-size: 11px; color: var(--muted); }
-.cell-assign { display: flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 700; color: var(--teal); }
+/* The strong step, not the base accent: an empty cell's fill is the darkest
+   paper tone in the app, and the accent only reaches 4.41:1 against it. The
+   strong step clears it at 5.69:1. */
+.cell-assign { display: flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 700; color: var(--accent-strong); }
 
 /* ========================================================================
    48rem — the whole week at once. Days become columns; the time column is
@@ -261,8 +256,8 @@
     letter-spacing: .04em;
     text-transform: uppercase;
   }
-  .timetable-day[data-today="true"] .timetable-day-head { color: var(--teal-strong); }
-  .timetable-day[data-today="true"] .timetable-cell { border-color: #cce4e3; }
+  .timetable-day[data-today="true"] .timetable-day-head { color: var(--accent-strong); }
+  .timetable-day[data-today="true"] .timetable-cell { border-color: #e9c1b5; }
 
   .timetable-times,
   .timetable-day { grid-template-rows: 30px repeat(6, 72px); grid-auto-rows: 72px; }
@@ -290,7 +285,7 @@
 
    A hovered cell takes its own type's colour, so the week reads as CR / TD /
    TP before any text is. `[data-type]` is set by TimetablePage; an empty cell
-   has none and falls back to the teal of its own "Assign" label.
+   has none and falls back to the bronze of its own "Assign" label.
 
    This sits after the breakpoints because the `data-today` border above has
    the same specificity (0,3,0) as `[data-type]:hover` — source order is what
@@ -299,11 +294,11 @@
 
 .timetable-cell { transition: background-color .13s ease, border-color .13s ease; }
 
-.timetable-cell[data-filled="false"]:hover { background: #eaf5f5; border-color: var(--teal); }
+.timetable-cell[data-filled="false"]:hover { background: #f4e0d9; border-color: var(--accent); }
 .timetable-cell[data-type="CR"]:hover { background: #e9f1fb; border-color: #3f6aa8; }
-.timetable-cell[data-type="TD"]:hover { background: #eaf4ef; border-color: #2f7c5f; }
-.timetable-cell[data-type="TP"]:hover { background: #fdf1e6; border-color: #a4702f; }
+.timetable-cell[data-type="TD"]:hover { background: #eaf4ef; border-color: #2e7a5d; }
+.timetable-cell[data-type="TP"]:hover { background: #fdf1e6; border-color: #93642a; }
 
 /* The badge wears the same tint the cell just took, so it would dissolve into
    it; white keeps it a chip. */
-.timetable-cell:hover .type-badge { background: #fff; }
+.timetable-cell:hover .type-badge { background: var(--surface); }

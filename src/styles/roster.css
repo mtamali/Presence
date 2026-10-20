@@ -2,7 +2,7 @@
 
 /* Shared panel chrome — .history-panel's own rules live in session.css. */
 .roster-panel, .history-panel {
-  border: 1px solid #e3e9ec;
+  border: 1px solid #ebe1d2;
   border-radius: 13px;
   background: white;
   box-shadow: var(--shadow);
@@ -11,9 +11,9 @@
 
 /* The separator below the head serves whatever follows it — the list or the
    empty state — so neither has to draw its own. */
-.roster-head { padding: 18px; display: block; align-items: center; justify-content: space-between; gap: 20px; border-bottom: 1px solid #edf1f2; }
+.roster-head { padding: 18px; display: block; align-items: center; justify-content: space-between; gap: 20px; border-bottom: 1px solid #efe6de; }
 .roster-head h3, .history-heading h3 { font-size: 15px; letter-spacing: -.035em; margin: 0 0 4px; }
-.roster-head p, .history-heading p { color: #8a9aa2; font-size: 11px; margin: 0; }
+.roster-head p, .history-heading p { color: var(--muted); font-size: 11px; margin: 0; }
 
 .roster-tools { display: flex; gap: 8px; margin-top: 17px; flex-direction: column; }
 
@@ -57,15 +57,15 @@
 
 .student-cell { display: flex; align-items: center; gap: 11px; }
 .student-text { min-width: 0; }
-.student-text strong { display: block; font-size: .8125rem; color: #24404e; }
-.student-text small { display: block; color: #a0acb1; font-size: .6875rem; margin-top: 3px; overflow-wrap: anywhere; }
+.student-text strong { display: block; font-size: .8125rem; color: #4a3b24; }
+.student-text small { display: block; color: var(--muted); font-size: .6875rem; margin-top: 3px; overflow-wrap: anywhere; }
 .avatar {
   width: 34px;
   height: 34px;
   flex: none;
   border-radius: 10px;
-  background: #e9f3f3;
-  color: #4d878b;
+  background: #f3ded7;
+  color: #8a5941;
   display: grid;
   place-items: center;
   font: 800 10px 'Manrope', sans-serif;
@@ -78,7 +78,7 @@
 .status-pill.unchecked { background: var(--idle-bg); color: var(--idle-fg); }
 .status-pill.present { background: var(--ok-bg); color: var(--ok-fg); }
 .status-pill.absent { background: var(--no-bg); color: var(--no-fg); }
-.check-time { display: block; color: #9eacb2; font-size: 9px; margin-top: 5px; }
+.check-time { display: block; color: var(--muted); font-size: 9px; margin-top: 5px; }
 
 /* ---- Check-in controls --------------------------------------------------- */
 
@@ -89,35 +89,35 @@
   flex: none;
   display: grid;
   place-items: center;
-  border: 1px solid #e4eaed;
+  border: 1px solid #ece2d3;
   border-radius: var(--radius-sm);
   background: var(--surface);
-  color: #9aadb4;
+  color: var(--muted);
 }
-.roster-mark button:hover { background: #f4f7f8; color: #5d7a85; }
+.roster-mark button:hover { background: #f6ede5; color: #7e6950; }
 /* Only the pressed state is colour-coded, and aria-pressed is what selects it,
    so the styling cannot drift from what a screen reader announces. */
-.roster-mark button[aria-pressed="true"]:first-child { background: var(--ok-bg); color: var(--ok-fg); border-color: #c9e8d9; }
-.roster-mark button[aria-pressed="true"]:last-child { background: var(--no-bg); color: #c46e66; border-color: #f2d2cc; }
-.locked-cell { display: inline-flex; align-items: center; gap: 6px; color: #9aaab1; font-size: 10px; }
+.roster-mark button[aria-pressed="true"]:first-child { background: var(--ok-bg); color: var(--ok-fg); border-color: #eab5c1; }
+.roster-mark button[aria-pressed="true"]:last-child { background: var(--no-bg); color: var(--no-fg); border-color: #f2d2cc; }
+.locked-cell { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: 10px; }
 
 /* ---- Footer -------------------------------------------------------------- */
 
 .roster-footer {
   min-height: 52px;
   padding: 10px 17px;
-  border-top: 1px solid #edf1f2;
+  border-top: 1px solid #efe6de;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   flex-direction: column;
   gap: 20px;
-  color: #9aaab1;
+  color: var(--muted);
   font-size: 10px;
 }
-.text-button { border: 0; background: none; color: #447682; display: inline-flex; align-items: center; gap: 6px; font-weight: 700; font-size: 10px; }
+.text-button { border: 0; background: none; color: #855e3d; display: inline-flex; align-items: center; gap: 6px; font-weight: 700; font-size: 10px; }
 .text-button:hover { text-decoration: underline; }
-.empty-table { text-align: center; padding: 32px; color: #8fa0a8; font-size: 12px; }
+.empty-table { text-align: center; padding: 32px; color: var(--muted); font-size: 12px; }
 
 /* ========================================================================
    48rem — the cards fold into a table; head and footer go back to single rows.
@@ -133,10 +133,10 @@
     display: table-cell;
     vertical-align: middle;
     padding: 11px 23px;
-    border-bottom: 1px solid #edf1f2;
+    border-bottom: 1px solid #efe6de;
   }
   .roster-row:last-child > * { border-bottom: 0; }
-  .roster-row:hover > * { background: #fbfcfc; }
+  .roster-row:hover > * { background: #f6f1ef; }
   .roster-row-student { width: 35%; }
   .roster-row-action { text-align: right; }
 }

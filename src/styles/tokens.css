@@ -1,19 +1,135 @@
 /* Design tokens. Values only — no selectors beyond :root. */
 
 :root {
-  --ink: #142b39;
-  --muted: #6d7d87;
-  --teal: #067d82;
-  --teal-strong: #087f83;
-  --line: #e3e9ec;
-  --surface: #fff;
-  --canvas: #f5f7f8;
-  --navy: #112c3b;
-  --shadow: 0 12px 35px rgba(19, 44, 59, .055);
+  /* ---- Warm neutrals -----------------------------------------------------
+     The paper the app is printed on. `--canvas` is the desk, `--surface` the
+     card lying on it; the gap between them is deliberately narrow, because the
+     depth between a card and its background is carried by the shadow tokens
+     below rather than by a lightness step. */
+  --ink: #2f261a;
+  /* Darker than the blue-grey it replaces, and deliberately so. A warm hue
+     carries more luminance than a blue at the same nominal lightness — the
+     coefficients are .7152 green against .0722 blue — so matching the old
+     colour's lightness would have quietly dropped every piece of secondary
+     text to 3.41:1 on canvas.
 
-  --ok-fg: #14836a;   --ok-bg: #e7f6ee;
-  --no-fg: #c7746a;   --no-bg: #fff0ed;
-  --idle-fg: #84949b; --idle-bg: #f4f6f7;
+     This is the one secondary-text colour, not the lightest of several. The
+     design it replaces had three tiers of grey — crumbs, subtitles, then a
+     fainter footer — and on beige only two of them can clear 4.5:1 at all:
+     the lightest passing value on `--idle-bg`, the darkest paper tone text
+     sits on, is this one. So the faint tier is gone and the hierarchy it
+     carried is left to size and weight, which the type scale already varies
+     from 10px to 12px. Holds 4.62:1 on idle-bg, 4.74:1 on canvas, 5.26:1 on
+     surface — every background it meets. */
+  --muted: #716656;
+  --line: #e0d4c0;
+  --surface: #fbf7f0;
+  --canvas: #f2ebdf;
+  --espresso: #2a2218;
+
+  /* ---- Bronze accent ----------------------------------------------------
+     One hue (24°) at the lightnesses its jobs need, rather than eight
+     separately chosen browns. Every step below was checked against the
+     surface, canvas and espresso it actually sits on:
+       500  the base accent      5.02:1 on surface, 4.53:1 on canvas
+       600  primary button fill  6.92:1 under white
+       700  accent text          8.58:1 on surface
+       300  active tab label     7.56:1 on espresso
+       200  on-espresso text     9.56:1 on espresso
+     50 and 100 are backgrounds and carry no text of their own. 400 is
+     decorative only: at 2.86:1 on surface it is the one step that cannot
+     hold a focus ring, which is why --ring points at 500. */
+  --bronze-50: #f7ede6;
+  --bronze-100: #f0ddd0;
+  --bronze-200: #e4c4af;
+  --bronze-300: #d8ab8d;
+  --bronze-400: #c78457;
+  --bronze-500: #9c5a2d;
+  --bronze-600: #874a22;
+  --bronze-700: #6d3b1a;
+
+  --accent: var(--bronze-500);
+  --accent-strong: var(--bronze-600);
+
+  /* The old ring was a pale mint that scored 1.60:1 against the surface it
+     outlined — well under the 3:1 WCAG 1.4.11 asks of a non-text indicator,
+     so keyboard focus was effectively invisible. The accent at full strength
+     clears it on both backgrounds. */
+  --ring: var(--bronze-500);
+
+  /* ---- Depth ------------------------------------------------------------
+     Shadows are warm. A neutral grey shadow over beige reads as grime rather
+     than shade, so every one of them is cast in `--shade`, the espresso the
+     rest of the palette is built from. Kept as bare channels so rules can mix
+     their own alpha: rgba(var(--shade), .08). */
+  --shade: 42, 34, 24;
+  /* Cards. The lit top edge plus the tight contact shadow are what make a card
+     read as paper resting on the desk; the wide falloff alone only reads as a
+     blur behind a rectangle. */
+  --shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .70),
+    0 1px 2px rgba(var(--shade), .06),
+    0 12px 35px rgba(var(--shade), .07);
+
+  /* The raised/pressed vocabulary the day chips established, promoted to
+     tokens so a button, a card and a cell can all speak it.
+
+     An embossed face is four layers: a crown highlight along the top edge, a
+     shade under the bottom edge, a tight contact shadow where the object meets
+     the page, and a wide ambient falloff. Dropping any one of them is what
+     makes a raised element look merely outlined.
+
+     An inset is the same light source read from inside the hole: the shadow
+     moves to the upper lip and the highlight to the lower one. That inversion
+     is the whole effect — a darker fill alone reads as a stain, not a dent. */
+  --emboss:
+    inset 0 1px 0 rgba(255, 255, 255, .85),
+    inset 0 -1px 0 rgba(var(--shade), .07),
+    0 2px 3px rgba(var(--shade), .10),
+    0 4px 8px rgba(var(--shade), .06);
+  --emboss-lift:
+    inset 0 1px 0 rgba(255, 255, 255, .85),
+    inset 0 -1px 0 rgba(var(--shade), .07),
+    0 3px 5px rgba(var(--shade), .12),
+    0 7px 14px rgba(var(--shade), .08);
+  --inset:
+    inset 0 2px 4px rgba(var(--shade), .16),
+    inset 0 -1px 0 rgba(255, 255, 255, .75),
+    0 1px 1px rgba(var(--shade), .05);
+  /* Deep enough to read as a hole in the page. The outer highlight below the
+     rim is the lip catching the light; it is what separates a hole from a
+     merely dark patch. */
+  --inset-deep:
+    inset 0 3px 6px rgba(0, 0, 0, .30),
+    inset 0 1px 2px rgba(0, 0, 0, .22),
+    inset 0 -1px 0 rgba(255, 255, 255, .18),
+    0 1px 0 rgba(255, 255, 255, .70);
+
+  /* Faces for the above. The gradient runs light-to-dark downward, so the
+     object agrees with the light its shadows imply. */
+  --face: linear-gradient(180deg, #fffdfa 0%, #f0e7da 100%);
+  --face-pressed: linear-gradient(180deg, #e8dcc8 0%, #f6efe3 100%);
+
+  /* ---- Status -----------------------------------------------------------
+     Present and absent keep their hues: green-is-good and red-is-bad are not
+     this app's conventions to rewrite. Only the lightness moved, and it had to
+     — both pairs were already under AA before the repaint (4.20:1 and 3.09:1),
+     and warming the backgrounds cost them another tenth. Now 4.54:1 and
+     4.55:1.
+
+     The absent red is the one value here chosen rather than derived. Simply
+     darkening the old salmon to pass landed on #9a5a52, which is 37 units from
+     the bronze accent in RGB — close enough that an absent pill could read as
+     an accent chip. This holds the red hue at 42 units away instead, and is a
+     lighter sibling of the #a4423c the danger button already uses. */
+  --ok-fg: #137b64;   --ok-bg: #e8f3e4;
+  --no-fg: #ba423e;   --no-bg: #fbeade;
+  /* Idle is not a colour, it is the absence of one: present is green, absent
+     is red, and not-yet-marked has no opinion to express. So it borrows the
+     secondary-text tier rather than holding a near-identical literal of its
+     own — which is also what stops it drifting below AA when `--muted` moves.
+     The name stays because the role is real and may yet want its own hue. */
+  --idle-fg: var(--muted); --idle-bg: #f0e8da;
 
   --space-1: .25rem; --space-2: .5rem;  --space-3: .75rem;
   --space-4: 1rem;   --space-5: 1.5rem; --space-6: 2rem;

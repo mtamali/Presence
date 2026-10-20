@@ -46,7 +46,10 @@ export function useNativeShell(page: Page, goHome: () => void) {
      * problem, and throwing here would take the first paint down with it.
      */
     StatusBar.setStyle({ style: Style.Dark }).catch(() => {})
-    StatusBar.setBackgroundColor({ color: '#112c3b' }).catch(() => {})
+    // Keep in step with --espresso in tokens.css, the theme-color in index.html
+    // and the scrim in base.css: four copies of one colour, and a status bar
+    // that disagrees with the scrim below it is visible as a seam.
+    StatusBar.setBackgroundColor({ color: '#2a2218' }).catch(() => {})
 
     const listener = NativeApp.addListener('backButton', () => {
       /**

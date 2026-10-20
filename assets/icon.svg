@@ -1,13 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
-  <!-- Legacy (non-adaptive) launcher icon, for Android versions that do not
-       composite the foreground/background pair. Same mark, drawn slightly
-       larger because there is no 66% safe zone to respect here — only the
-       launcher's corner rounding, which the 96px inset clears.
-       The tick is #2bb3a3 rather than the brand --teal #067d82: that teal
-       against this navy measures about 2.9:1, too muddy to read at 48px. This
-       brighter tint of it measures about 5.5:1. -->
-  <rect width="1024" height="1024" rx="224" fill="#112c3b"/>
-  <path d="M 288 532 L 428 672 L 736 348"
-        fill="none" stroke="#2bb3a3" stroke-width="104"
-        stroke-linecap="round" stroke-linejoin="round"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024"><rect width="1024" height="1024" rx="224" fill="#2a2218"/><path d="M344 750V294h188c126 0 198 65 198 164s-72 164-198 164h-90" fill="none" stroke="#fbf7f0" stroke-width="88" stroke-linecap="round" stroke-linejoin="round"/><path d="m470 458 72 72 152-164" fill="none" stroke="#c78457" stroke-width="64" stroke-linecap="round" stroke-linejoin="round"/></svg>

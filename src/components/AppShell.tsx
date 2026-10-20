@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { BarChart3, BookMarked, CalendarClock, CalendarDays, GraduationCap, LayoutGrid, QrCode, ScanLine, ShieldCheck } from 'lucide-react'
+import { BarChart3, BookMarked, CalendarClock, CalendarDays, GraduationCap, LayoutGrid, QrCode, ShieldCheck } from 'lucide-react'
 import { BADGES_ENABLED } from '../config'
 import { formatDate, localToday } from '../format'
 import type { Speciality } from '../roster'
@@ -66,7 +66,7 @@ export function AppShell({ page, onPageChange, speciality, children }: {
     <div className="app-shell">
       <aside className="sidebar">
         <div className="brand">
-          <div className="brand-mark"><ScanLine size={22} strokeWidth={2.4} /></div>
+          <div className="brand-mark"><img src="/brand/logo.svg" width="35" height="35" alt="" /></div>
           <div><strong>Présence</strong><span>Attendance manager</span></div>
         </div>
         <div className="sidebar-caption">Workspace</div>
