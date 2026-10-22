@@ -18,3 +18,5 @@ server/data/*.db-shm
 Listes 2627/
 src/data/students.json
 students.csv
+student-lists-docx/
+*.apk

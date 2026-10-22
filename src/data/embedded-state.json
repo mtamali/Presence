@@ -1,0 +1,88 @@
+{
+  "courses": [
+    {
+      "code": "F122",
+      "name": "Optimization Techniques",
+      "specialities": [
+        "1MAUT"
+      ]
+    },
+    {
+      "code": "M115",
+      "name": "Advanced Python",
+      "specialities": [
+        "1MAUT",
+        "1MESE",
+        "4IGEI"
+      ]
+    }
+  ],
+  "timetable": [
+    {
+      "day": 3,
+      "slot": 1,
+      "courseCode": "F122",
+      "type": "TP",
+      "specialities": [
+        "1MAUT"
+      ],
+      "room": "K15"
+    },
+    {
+      "day": 3,
+      "slot": 5,
+      "courseCode": "M115",
+      "type": "TP",
+      "specialities": [
+        "1MAUT",
+        "1MESE",
+        "4IGEI"
+      ],
+      "room": "Atelier"
+    },
+    {
+      "day": 0,
+      "slot": 3,
+      "courseCode": "M115",
+      "type": "CR",
+      "specialities": [
+        "1MAUT",
+        "1MESE",
+        "4IGEI"
+      ],
+      "room": "Amphitheatre K"
+    },
+    {
+      "day": 3,
+      "slot": 6,
+      "courseCode": "M115",
+      "type": "TP",
+      "specialities": [
+        "1MAUT",
+        "1MESE",
+        "4IGEI"
+      ],
+      "room": "Atelier"
+    },
+    {
+      "day": 4,
+      "slot": 1,
+      "courseCode": "F122",
+      "type": "CR",
+      "specialities": [
+        "1MAUT"
+      ],
+      "room": "L07"
+    },
+    {
+      "day": 4,
+      "slot": 2,
+      "courseCode": "F122",
+      "type": "TD",
+      "specialities": [
+        "1MAUT"
+      ],
+      "room": "L07"
+    }
+  ]
+}
