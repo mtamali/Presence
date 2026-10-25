@@ -13,19 +13,21 @@ Open the local address printed by Vite. Run `npm run build` to create a producti
 
 ## Teacher workflow
 
-1. Select a speciality and create a course session.
-2. In **Student badges**, print the assigned QR badges or import a CSV roster with student emails. The import previews exact name or matricule matches and leaves unmatched rows untouched.
-3. During a session, select **Scan a badge**. Check the matched student's name, then select **Confirm presence**. A badge from another speciality or a duplicate check-in is flagged. If the camera is unavailable, enter the badge code manually; the teacher can also mark a student in the roster.
+1. Open **Manage Student**, choose a speciality, and add or edit students. Use **Import CSV** for a class list with `Student ID`, `Name`, and optional `Email` columns. The preview shows additions, updates, and students who will be deactivated. University numbers in the CSV match the existing roster without changing attendance IDs.
+2. Select a speciality and create a course session.
+3. During a session, mark students present or absent in the attendance roster.
 4. Close the session to mark unchecked students absent. Reopen it if corrections are needed; automatically marked absences return to unchecked.
 5. Export the session as a CSV file for records.
 
-Attendance is stored in this browser on this device. It is not synced, backed up, or protected by an account. Export session CSV files regularly. Clearing browser storage removes saved sessions. Camera scanning requires browser camera permission and a secure context such as `localhost` or HTTPS.
+Attendance and roster edits are stored in this browser on this device. They are not synced or protected by an account. Use **Analytics → Back up everything** to save a copy; clearing browser storage or uninstalling the app removes data that has not been backed up.
 
-The QR value is a random badge code rather than a name or university number. A photographed or copied badge can still be reused, so the teacher should compare the student's identity with the name displayed after scanning. Do not deploy the included roster publicly without adding authentication and appropriate data protection.
+The local `1MAUT.csv` and generated `src/data/students.json` contain private student details and are excluded from Git. A fresh local build uses the generated roster; an existing device can import the CSV from **Manage Student** to update its saved roster.
 
-## Student email roster and badge attachments
+Do not deploy the included roster publicly without adding authentication and appropriate data protection.
 
-The **Python Avancé** Google Classroom roster (class code `rqzf77qf`) is not bundled with this project. To add emails locally, open **Student badges → Import emails** and select a CSV or TSV file with an `Email` column plus either `Name`, `First name` and `Last name`, or `Matricule`. French column names such as `Nom`, `Prénom`, `Courriel`, and `Matricule` work too. Review the match preview before importing. Emails are saved only in this browser's local storage; importing does not email students.
+## Legacy badge attachments
+
+The badge screen is currently disabled. The scripts below remain for preparing private badge images and Gmail draft plans. The **Python Avancé** Google Classroom roster (class code `rqzf77qf`) is not bundled with this project. Add student emails through **Manage Student → Import CSV**; importing does not email students.
 
 ### Preparing Gmail drafts
 

@@ -64,7 +64,14 @@ export function previewRosterImport(text: string, speciality: Speciality, curren
   if (idIndex < 0) throw new Error('The file needs a Student ID column.')
   if (nameIndex < 0) throw new Error('The file needs a Name column.')
 
-  const existing = new Map(currentRoster.map(student => [student.id, student]))
+  // Older rosters use registration IDs internally while class CSVs use the
+  // university number. Match either identifier and retain the internal ID so
+  // attendance already recorded for that student still points to them.
+  const existing = new Map<string, Student>()
+  for (const student of currentRoster) {
+    existing.set(student.id, student)
+    if (student.matricule) existing.set(student.matricule, student)
+  }
   const dataRows = rows.slice(1)
   const issues: RosterImportPreview['issues'] = []
 
@@ -108,10 +115,16 @@ export function previewRosterImport(text: string, speciality: Speciality, curren
       issues.push({ name: candidate.id, reason: 'Duplicate email in the file' })
       continue
     }
-    seen.add(candidate.id)
     const previous = existing.get(candidate.id)
+    const stableId = previous?.id ?? candidate.id
+    if (seen.has(stableId)) {
+      issues.push({ name: candidate.id, reason: 'The same student appears twice in the file' })
+      continue
+    }
+    seen.add(stableId)
     const next: Student = {
-      id: candidate.id,
+      id: stableId,
+      ...(previous?.matricule ? { matricule: previous.matricule } : {}),
       lastName: candidate.lastName,
       firstName: candidate.firstName,
       email: candidate.email,

@@ -58,6 +58,12 @@ describe('roster storage', () => {
     expect(getRoster('1MAUT').map(s => s.id)).toEqual(['A1'])
   })
 
+  it('restores university numbers for older saved seed records', () => {
+    const original = getRoster('1MAUT')[0]
+    saveRoster('1MAUT', [{ ...original, matricule: undefined }])
+    expect(getRoster('1MAUT')[0].matricule).toBe(original.matricule)
+  })
+
   it('isolates specialities from one another', () => {
     saveRoster('1MAUT', [student('A1')])
     expect(getRoster('1MESE').length).toBe(19)

@@ -24,6 +24,14 @@ describe('previewRosterImport', () => {
     expect(preview.added).toEqual([])
   })
 
+  it('matches a university number without changing the attendance ID', () => {
+    const previous = student('REG-1', { matricule: '38000123' })
+    const preview = previewRosterImport(`${header}\n38000123,NEW Name,n@x.dz`, '1MAUT', [previous])
+    expect(preview.added).toEqual([])
+    expect(preview.deactivated).toEqual([])
+    expect(preview.updated[0]).toMatchObject({ id: 'REG-1', matricule: '38000123', email: 'n@x.dz' })
+  })
+
   it('reactivates a deactivated student present in the file', () => {
     const preview = previewRosterImport(`${header}\n1,A B,a@x.dz`, '1MAUT', [student('1', { active: false })])
     expect(preview.updated[0].active).toBe(true)

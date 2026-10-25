@@ -1,15 +1,16 @@
 import type { ReactNode } from 'react'
-import { BarChart3, BookMarked, CalendarClock, CalendarDays, GraduationCap, LayoutGrid, QrCode, ShieldCheck, Sun } from 'lucide-react'
+import { BarChart3, BookMarked, CalendarClock, CalendarDays, GraduationCap, LayoutGrid, QrCode, ShieldCheck, Sun, Users } from 'lucide-react'
 import { BADGES_ENABLED } from '../config'
 import { formatDate, localToday } from '../format'
 import type { Speciality } from '../roster'
 
-export type Page = 'home' | 'timetable' | 'attendance' | 'courses' | 'analytics' | 'badges'
+export type Page = 'home' | 'timetable' | 'attendance' | 'students' | 'courses' | 'analytics' | 'badges'
 
 const destinations: { page: Page; label: string; icon: ReactNode }[] = [
   { page: 'home', label: 'Today', icon: <Sun size={19} /> },
   { page: 'timetable', label: 'Timetable', icon: <CalendarClock size={19} /> },
   { page: 'attendance', label: 'Attendance', icon: <LayoutGrid size={19} /> },
+  { page: 'students', label: 'Manage Student', icon: <Users size={19} /> },
   { page: 'courses', label: 'Courses', icon: <BookMarked size={19} /> },
   { page: 'analytics', label: 'Analytics', icon: <BarChart3 size={19} /> },
 ]
@@ -39,6 +40,11 @@ export const pageCopy: Record<Exclude<Page, 'home'>, { eyebrow: string; title: s
     eyebrow: 'Classroom attendance',
     title: 'Every student, accounted for.',
     subtitle: 'Create a course session, mark each student present or absent, and review your class in real time.',
+  },
+  students: {
+    eyebrow: 'Student records',
+    title: 'Manage your students.',
+    subtitle: 'Add, edit, import and deactivate students in each speciality. Earlier attendance stays linked to their records.',
   },
   courses: {
     eyebrow: 'Course catalogue',

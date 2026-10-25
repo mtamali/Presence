@@ -5,6 +5,7 @@ import { AnalyticsPage } from './components/AnalyticsPage'
 import { AttendancePage } from './components/AttendancePage'
 import { CoursesPage } from './components/CoursesPage'
 import { HomePage } from './components/HomePage'
+import { ManageStudentsPage } from './components/ManageStudentsPage'
 import { TimetablePage } from './components/TimetablePage'
 import { SpecialityPicker } from './components/SpecialityPicker'
 import { CreateSessionModal } from './components/modals/CreateSessionModal'
@@ -80,6 +81,7 @@ function App() {
   // Inactive students are kept for the import merge and for past sessions, but
   // never offered for marking.
   const storedRoster = useMemo(() => getRoster(speciality), [speciality, rosterVersion])
+  const allStudents = useMemo(() => specialities.flatMap(item => getRoster(item.id)), [rosterVersion])
   const classStudents = useMemo(() => storedRoster.filter(student => student.active), [storedRoster])
   const classSessions = useMemo(() => sessions.filter(item => item.specialities.includes(speciality))
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt)), [sessions, speciality])
@@ -141,7 +143,7 @@ function App() {
     setToast(`${session.course} session started.`)
   }
 
-  function handleImport(students: Student[]) {
+  function handleRosterChange(students: Student[], message: string) {
     // Called straight from the handler rather than an effect, because the roster
     // lives outside React state — so this is the one write that has to report
     // itself here.
@@ -154,8 +156,12 @@ function App() {
       ? { ...item, rosterIds: activeRosterIds(item.specialities) }
       : item))
     setRosterVersion(version => version + 1)
+    setToast(message)
+  }
+
+  function handleImport(students: Student[]) {
+    handleRosterChange(students, `${speciality} roster updated — ${students.filter(student => student.active).length} active students.`)
     setImportOpen(false)
-    setToast(`${speciality} roster updated — ${students.filter(student => student.active).length} active students.`)
   }
 
   return (
@@ -218,6 +224,14 @@ function App() {
         entries={entries}
         onChange={setCourses}
         onToast={setToast}
+      />}
+
+      {page === 'students' && <ManageStudentsPage
+        speciality={speciality}
+        students={storedRoster}
+        allStudents={allStudents}
+        onChange={handleRosterChange}
+        onImportOpen={() => setImportOpen(true)}
       />}
 
       {page === 'attendance' && <AttendancePage

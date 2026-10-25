@@ -29,6 +29,8 @@ export type Speciality = '1MAUT' | '1MESE' | '4IGEI'
 
 export type Student = {
   id: string
+  /** University number, when the stored record uses a different stable ID. */
+  matricule?: string
   lastName: string
   firstName: string
   email?: string
@@ -48,15 +50,17 @@ export const ROSTER_STORAGE_KEY = 'presence-roster-v1'
 // The seed file still carries the pre-restructure shape (registration,
 // matricule, section, group, badgeCode). Normalise it to the Student type and
 // drop the fields that the supplied roster cannot populate.
-type SeedRecord = { id: string; matricule: string; lastName: string; firstName: string; speciality: string; badgeCode?: string }
+type SeedRecord = { id: string; matricule: string; lastName: string; firstName: string; email?: string; speciality: string; badgeCode?: string }
 
 function seedRoster(speciality: Speciality): Student[] {
   return (seed as SeedRecord[])
     .filter(record => record.speciality === speciality)
     .map(record => ({
       id: record.id,
+      matricule: record.matricule,
       lastName: record.lastName,
       firstName: record.firstName,
+      email: record.email,
       speciality,
       active: true,
       badgeCode: record.badgeCode,
@@ -75,7 +79,11 @@ function loadOverrides(): Partial<Record<Speciality, Student[]>> {
 
 export function getRoster(speciality: Speciality): Student[] {
   const stored = loadOverrides()[speciality]
-  return Array.isArray(stored) ? stored : seedRoster(speciality)
+  if (!Array.isArray(stored)) return seedRoster(speciality)
+  const universityNumberById = new Map(seedRoster(speciality).map(student => [student.id, student.matricule]))
+  return stored.map(student => student.matricule || !universityNumberById.has(student.id)
+    ? student
+    : { ...student, matricule: universityNumberById.get(student.id) })
 }
 
 export function getActiveRoster(speciality: Speciality): Student[] {

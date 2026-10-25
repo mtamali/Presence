@@ -18,5 +18,8 @@ server/data/*.db-shm
 Listes 2627/
 src/data/students.json
 students.csv
+1MAUT.csv
+1MESE.csv
+4IGEI.csv
 student-lists-docx/
 *.apk
