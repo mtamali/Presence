@@ -1,11 +1,11 @@
-import { getActiveRoster, specialities as allSpecialities, type Speciality } from './roster'
+import { getActiveRoster, specialities as allSpecialities, type Speciality, type Student } from './roster'
 import { writeStore } from './storage'
 import type { DayIndex, SessionType, SlotIndex } from './timetable'
 
 export type AttendanceEntry = {
   status: 'present' | 'absent'
   at: string
-  // 'scan' is retained for entries recorded before badges were retired.
+  // New present entries use 'scan'; 'manual' remains for older records and absences.
   method: 'scan' | 'manual' | 'session-close'
 }
 
@@ -79,6 +79,27 @@ export function createSession(details: SessionDetails): AttendanceSession {
     createdAt: new Date().toISOString(),
     rosterIds: activeRosterIds(details.specialities),
     entries: {},
+  }
+}
+
+/** Presence requires a QR scan that resolves to an active session member. */
+export function markScannedPresent(session: AttendanceSession, student: Student, scannedCode: string): AttendanceSession | null {
+  if (session.state !== 'open' || !student.active || !session.specialities.includes(student.speciality)) return null
+  if (!session.rosterIds.includes(student.id) || !student.badgeCode || student.badgeCode !== scannedCode.trim()) return null
+  if (session.entries[student.id]?.status === 'present') return null
+  return {
+    ...session,
+    entries: { ...session.entries, [student.id]: { status: 'present', at: new Date().toISOString(), method: 'scan' } },
+  }
+}
+
+/** Teacher-verified fallback when a student is present without their badge. */
+export function markManualPresent(session: AttendanceSession, student: Student): AttendanceSession | null {
+  if (session.state !== 'open' || !student.active || !session.specialities.includes(student.speciality)) return null
+  if (!session.rosterIds.includes(student.id) || session.entries[student.id]?.status === 'present') return null
+  return {
+    ...session,
+    entries: { ...session.entries, [student.id]: { status: 'present', at: new Date().toISOString(), method: 'manual' } },
   }
 }
 

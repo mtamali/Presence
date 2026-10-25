@@ -10,7 +10,7 @@ const destinations: { page: Page; label: string; icon: ReactNode }[] = [
   { page: 'home', label: 'Today', icon: <Sun size={19} /> },
   { page: 'timetable', label: 'Timetable', icon: <CalendarClock size={19} /> },
   { page: 'attendance', label: 'Attendance', icon: <LayoutGrid size={19} /> },
-  { page: 'students', label: 'Manage Student', icon: <Users size={19} /> },
+  { page: 'students', label: 'Students Management', icon: <Users size={19} /> },
   { page: 'courses', label: 'Courses', icon: <BookMarked size={19} /> },
   { page: 'analytics', label: 'Analytics', icon: <BarChart3 size={19} /> },
 ]
@@ -39,12 +39,12 @@ export const pageCopy: Record<Exclude<Page, 'home'>, { eyebrow: string; title: s
   attendance: {
     eyebrow: 'Classroom attendance',
     title: 'Every student, accounted for.',
-    subtitle: 'Create a course session, mark each student present or absent, and review your class in real time.',
+    subtitle: 'Scan student QR badges to record presence, with a manual check-in when a student has no badge.',
   },
   students: {
     eyebrow: 'Student records',
-    title: 'Manage your students.',
-    subtitle: 'Add, edit, import and deactivate students in each speciality. Earlier attendance stays linked to their records.',
+    title: 'Students Management',
+    subtitle: 'Filter students by speciality, keep their records up to date, and share their badges.',
   },
   courses: {
     eyebrow: 'Course catalogue',

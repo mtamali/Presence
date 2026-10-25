@@ -1,4 +1,4 @@
-/* Dormant badge feature (BADGES_ENABLED = false): badge cards, QR scanner, print sheet. */
+/* Badge cards, the in-app camera scanner, and the print sheet. */
 
 .badge-intro {
   border-radius: 12px;
@@ -98,13 +98,6 @@
 }
 .scan-step p { font-size: 11px; line-height: 1.55; color: #7f6c54; margin: 3px 0 0; }
 
-.manual-entry { border-top: 1px solid #f0e3d2; margin-top: 31px; padding-top: 22px; }
-.manual-entry-title { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; color: #554128; }
-.manual-entry-title svg { color: #683927; }
-.manual-entry p { font-size: 10px; color: #a79680; line-height: 1.5; margin: 7px 0 12px; }
-.manual-entry form { display: flex; border: 1px solid #e9d7c9; border-radius: 7px; overflow: hidden; min-height: var(--tap); }
-.manual-entry input { min-width: 0; width: 100%; border: 0; outline: 0; padding: 0 10px; font-size: 11px; }
-.manual-entry form button { border: 0; background: #653826; color: #fff; width: var(--tap); flex: none; display: grid; place-items: center; }
 
 .scan-result { width: 100%; text-align: center; }
 .scan-result-icon { width: 62px; height: 62px; border-radius: 17px; display: grid; place-items: center; margin: 0 auto 15px; }

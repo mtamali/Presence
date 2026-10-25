@@ -1,7 +1,7 @@
 import { beforeEach, describe, it, expect } from 'vitest'
 import { saveRoster, type Student } from './roster'
 import {
-  createSession, closeSession, reopenSession, sessionStats, activeRosterIds, sessionForCell,
+  createSession, closeSession, reopenSession, sessionStats, activeRosterIds, sessionForCell, markManualPresent, markScannedPresent,
   loadSessions, saveSessions, SESSION_STORAGE_KEY,
 } from './sessions'
 
@@ -21,6 +21,30 @@ describe('session snapshot', () => {
   it('snapshots only active students at creation', () => {
     saveRoster('1MAUT', [student('A1'), student('A2'), student('A3', { active: false })])
     expect(createSession(details).rosterIds).toEqual(['A1', 'A2'])
+  })
+
+  it('records presence only for an active member with the scanned badge code', () => {
+    const member = student('A1', { badgeCode: 'ATD26-A1' })
+    saveRoster('1MAUT', [member])
+    const session = createSession(details)
+    expect(markScannedPresent(session, member, 'wrong')).toBeNull()
+    expect(markScannedPresent(session, student('A2', { badgeCode: 'ATD26-A2' }), 'ATD26-A2')).toBeNull()
+    expect(markScannedPresent(session, { ...member, active: false }, member.badgeCode!)).toBeNull()
+    const marked = markScannedPresent(session, member, member.badgeCode!)!
+    expect(marked.entries.A1).toMatchObject({ status: 'present', method: 'scan' })
+    expect(markScannedPresent(marked, member, member.badgeCode!)).toBeNull()
+    expect(markScannedPresent(closeSession(session), member, member.badgeCode!)).toBeNull()
+  })
+
+  it('allows a teacher-verified manual check-in once, without a badge', () => {
+    const member = student('A1')
+    saveRoster('1MAUT', [member])
+    const session = createSession(details)
+    const marked = markManualPresent(session, member)!
+    expect(marked.entries.A1).toMatchObject({ status: 'present', method: 'manual' })
+    expect(markManualPresent(marked, member)).toBeNull()
+    expect(markManualPresent(session, student('A2'))).toBeNull()
+    expect(markManualPresent(closeSession(session), member)).toBeNull()
   })
 
   it('keeps totals stable when the roster changes afterwards', () => {

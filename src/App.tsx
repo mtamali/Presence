@@ -18,10 +18,11 @@ import {
 import { COURSE_STORAGE_KEY, loadCourses, saveCourses, type Course } from './courses'
 import { loadTimetable, saveTimetable, TIMETABLE_STORAGE_KEY, type TimetableEntry } from './timetable'
 import { BADGES_ENABLED } from './config'
+import { assignMissingBadgeCodes } from './badges'
 import { useNativeShell } from './native/shell'
 
-// Badge screens are dormant behind BADGES_ENABLED. Importing them lazily keeps
-// qrcode.react and html5-qrcode out of the entry chunk entirely.
+// The separate badge gallery is dormant behind BADGES_ENABLED. Lazy-loading it
+// keeps the gallery's scanner and layout out of the entry chunk.
 const BadgePage = lazy(() => import('./components/badges/BadgePage'))
 
 function App() {
@@ -143,25 +144,28 @@ function App() {
     setToast(`${session.course} session started.`)
   }
 
-  function handleRosterChange(students: Student[], message: string) {
+  function handleRosterChange(targetSpeciality: Speciality, students: Student[], message: string) {
     // Called straight from the handler rather than an effect, because the roster
     // lives outside React state — so this is the one write that has to report
     // itself here.
-    trackWrite(ROSTER_STORAGE_KEY, saveRoster(speciality, students))
+    const withBadges = assignMissingBadgeCodes(students, allStudents.map(item => item.badgeCode).filter((code): code is string => Boolean(code)))
+    const error = saveRoster(targetSpeciality, withBadges)
+    trackWrite(ROSTER_STORAGE_KEY, error)
+    if (error) return false
     // Open sessions are still being taken, so they follow the new class list.
     // Closed ones are a record of who was expected that day and never move.
     // Each one re-snapshots across *its own* classes: using only the imported
     // speciality's ids would silently shrink a shared lecture to one class.
-    setSessions(current => current.map(item => item.specialities.includes(speciality) && item.state === 'open'
+    setSessions(current => current.map(item => item.specialities.includes(targetSpeciality) && item.state === 'open'
       ? { ...item, rosterIds: activeRosterIds(item.specialities) }
       : item))
     setRosterVersion(version => version + 1)
     setToast(message)
+    return true
   }
 
   function handleImport(students: Student[]) {
-    handleRosterChange(students, `${speciality} roster updated — ${students.filter(student => student.active).length} active students.`)
-    setImportOpen(false)
+    if (handleRosterChange(speciality, students, `${speciality} roster updated — ${students.filter(student => student.active).length} active students.`)) setImportOpen(false)
   }
 
   return (
@@ -189,7 +193,7 @@ function App() {
           at once, so a class filter there would promise filtering it does not
           do. Analytics carries its own filter, inside the one list that needs
           it, and home is scoped to the day rather than to a class. */}
-      {page !== 'home' && page !== 'timetable' && page !== 'analytics' && <SpecialityPicker speciality={speciality} onChange={setSpeciality} progress={showBadges ? undefined : progress} />}
+      {page !== 'home' && page !== 'timetable' && page !== 'analytics' && page !== 'students' && <SpecialityPicker speciality={speciality} onChange={setSpeciality} progress={showBadges ? undefined : progress} />}
 
       {page === 'home' && <HomePage
         entries={entries}
@@ -228,9 +232,9 @@ function App() {
 
       {page === 'students' && <ManageStudentsPage
         speciality={speciality}
-        students={storedRoster}
         allStudents={allStudents}
         onChange={handleRosterChange}
+        onSpecialityChange={setSpeciality}
         onImportOpen={() => setImportOpen(true)}
       />}
 

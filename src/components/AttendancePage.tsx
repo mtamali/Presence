@@ -1,12 +1,14 @@
-import { useEffect, useMemo, useState } from 'react'
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { Plus, QrCode, ScanLine } from 'lucide-react'
 import { RosterList, type StatusFilter } from './RosterList'
 import { SessionHistory } from './SessionHistory'
 import { SessionSummary } from './SessionSummary'
 import { StatGrid } from './StatGrid'
 import { getRoster, specialities, type Speciality, type Student } from '../roster'
-import { closeSession, reopenSession, sessionStats, type AttendanceSession } from '../sessions'
+import { closeSession, markManualPresent, markScannedPresent, reopenSession, sessionStats, type AttendanceSession } from '../sessions'
 import { exportSessionCsv } from '../csv'
+
+const ScannerModal = lazy(() => import('./badges/ScannerModal'))
 
 /**
  * The attendance screen: pick a session, mark the roster, close and export.
@@ -37,13 +39,16 @@ export function AttendancePage({
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState<StatusFilter>('all')
   const [classFilter, setClassFilter] = useState<Speciality | 'all'>('all')
+  const [scanOpen, setScanOpen] = useState(false)
 
   const selectedSession = sessions.find(item => item.id === selectedId) || null
+  const latestSession = useRef<AttendanceSession | null>(selectedSession)
+  latestSession.current = selectedSession
   const counts = selectedSession ? sessionStats(selectedSession) : null
   const specialityName = specialities.find(item => item.id === speciality)!.name
 
   // A different session or class means the old query describes nothing.
-  useEffect(() => { setSearch(''); setFilter('all'); setClassFilter('all') }, [selectedId, speciality])
+  useEffect(() => { setSearch(''); setFilter('all'); setClassFilter('all'); setScanOpen(false) }, [selectedId, speciality])
 
   // Who the roster panel lists. It follows the session's own membership rather
   // than the live class, so the rows, the stat totals and the CSV export all
@@ -65,13 +70,33 @@ export function AttendancePage({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedSession, rosterVersion])
 
-  function markStudent(student: Student, status: 'present' | 'absent') {
-    if (!selectedSession || selectedSession.state !== 'open') return
+  function markAbsent(student: Student) {
+    if (!selectedSession || selectedSession.state !== 'open' || selectedSession.entries[student.id]?.status === 'present') return
     onReplace({
       ...selectedSession,
-      entries: { ...selectedSession.entries, [student.id]: { status, at: new Date().toISOString(), method: 'manual' } },
+      entries: { ...selectedSession.entries, [student.id]: { status: 'absent', at: new Date().toISOString(), method: 'manual' } },
     })
-    onToast(`${student.firstName} ${student.lastName} marked ${status}.`)
+    onToast(`${student.firstName} ${student.lastName} marked absent.`)
+  }
+
+  function markPresentManually(student: Student) {
+    const current = latestSession.current
+    if (!current || !window.confirm(`Mark ${student.firstName} ${student.lastName} present without scanning a badge?`)) return
+    const updated = markManualPresent(current, student)
+    if (!updated) { onToast('This student is already present or is not in this session.'); return }
+    latestSession.current = updated
+    onReplace(updated)
+    onToast(`${student.firstName} ${student.lastName} marked present manually.`)
+  }
+
+  function confirmScan(student: Student, code: string) {
+    if (!latestSession.current) return false
+    const updated = markScannedPresent(latestSession.current, student, code)
+    if (!updated) { onToast('This badge cannot mark presence in the current session.'); return false }
+    latestSession.current = updated
+    onReplace(updated)
+    onToast(`${student.firstName} ${student.lastName} marked present by QR scan.`)
+    return true
   }
 
   function handleClose() {
@@ -96,6 +121,7 @@ export function AttendancePage({
     {selectedSession ? <>
       <SessionSummary
         session={selectedSession}
+        onScan={() => setScanOpen(true)}
         onReopen={handleReopen}
         onExport={() => exportSessionCsv(selectedSession)}
       />
@@ -109,13 +135,14 @@ export function AttendancePage({
         onSearch={setSearch}
         onFilter={setFilter}
         onClassFilter={setClassFilter}
-        onMark={markStudent}
+        onMarkAbsent={markAbsent}
+        onMarkPresentManually={markPresentManually}
         onCloseSession={handleClose}
       />
     </> : <div className="empty-session">
       <div className="empty-illustration"><QrCode size={46} /><span><ScanLine size={25} /></span></div>
       <h3>No course session yet</h3>
-      <p>Start a session for {speciality}. You can then mark each student present or absent as they arrive.</p>
+      <p>Start a session for {speciality}, then scan each student's QR badge. Search the roster for a student who attends without a badge.</p>
       <div className="empty-actions">
         <button className="button button-primary" onClick={onCreateOpen}><Plus size={18} /> Create first session</button>
         <button className="button button-light" onClick={onImportOpen}>Import the {speciality} roster</button>
@@ -123,5 +150,6 @@ export function AttendancePage({
     </div>}
 
     {sessions.length > 0 && <SessionHistory sessions={sessions} selectedId={selectedId} onSelect={onSelect} />}
+    {scanOpen && selectedSession?.state === 'open' && <Suspense fallback={null}><ScannerModal session={selectedSession} onClose={() => setScanOpen(false)} onConfirm={confirmScan} /></Suspense>}
   </>
 }

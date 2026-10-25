@@ -84,21 +84,23 @@
 
 .roster-mark { display: flex; gap: var(--space-2); justify-content: flex-end; }
 .roster-mark button {
-  width: var(--tap);
+  min-width: var(--tap);
   height: var(--tap);
   flex: none;
-  display: grid;
-  place-items: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 0 8px;
   border: 1px solid #ece2d3;
   border-radius: var(--radius-sm);
   background: var(--surface);
   color: var(--muted);
 }
+.roster-mark button span { font-size: 10px; font-weight: 700; }
 .roster-mark button:hover { background: #f6ede5; color: #7e6950; }
-/* Only the pressed state is colour-coded, and aria-pressed is what selects it,
-   so the styling cannot drift from what a screen reader announces. */
-.roster-mark button[aria-pressed="true"]:first-child { background: var(--ok-bg); color: var(--ok-fg); border-color: #eab5c1; }
-.roster-mark button[aria-pressed="true"]:last-child { background: var(--no-bg); color: var(--no-fg); border-color: #f2d2cc; }
+.roster-mark button:first-child { color: var(--ok-fg); }
+.roster-mark button[aria-pressed="true"] { background: var(--no-bg); color: var(--no-fg); border-color: #f2d2cc; }
 .locked-cell { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: 10px; }
 
 /* ---- Footer -------------------------------------------------------------- */

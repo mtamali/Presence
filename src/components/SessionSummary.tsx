@@ -1,4 +1,4 @@
-import { CalendarDays, Clock3, Download, MapPin, RotateCcw, Users } from 'lucide-react'
+import { CalendarDays, Clock3, Download, MapPin, RotateCcw, ScanLine, Users } from 'lucide-react'
 import { ClassTags, TypeBadge } from './Tags'
 import { formatDate } from '../format'
 import type { AttendanceSession } from '../sessions'
@@ -10,8 +10,9 @@ import type { AttendanceSession } from '../sessions'
  * Closing a session is not here — that button lives in the roster footer,
  * beside the count of who is still unchecked.
  */
-export function SessionSummary({ session, onReopen, onExport }: {
+export function SessionSummary({ session, onScan, onReopen, onExport }: {
   session: AttendanceSession
+  onScan: () => void
   onReopen: () => void
   onExport: () => void
 }) {
@@ -37,6 +38,7 @@ export function SessionSummary({ session, onReopen, onExport }: {
         </div>
       </div>
       <div className="session-summary-actions">
+        {open && <button className="button button-primary scan-button" onClick={onScan}><ScanLine size={17} /> Scan student QR</button>}
         {!open && <button className="button button-light" onClick={onReopen}><RotateCcw size={17} /> Reopen</button>}
         <button className="button button-light" onClick={onExport}><Download size={17} /> Export CSV</button>
       </div>

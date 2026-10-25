@@ -16,7 +16,7 @@ function statusFor(session: AttendanceSession, student: Student) {
 }
 
 /**
- * The roster panel — now the only way attendance is recorded.
+ * The roster panel shows scanned presence and offers a teacher-confirmed fallback.
  *
  * One <ul> serves both layouts: a card per student on phone, a table from
  * 48rem. The four <li> children are plain cells with no layout of their own,
@@ -24,7 +24,7 @@ function statusFor(session: AttendanceSession, student: Student) {
  * to be a flex row lives one level further in. See roster.css.
  */
 export function RosterList({
-  session, students, search, filter, classFilter, onSearch, onFilter, onClassFilter, onMark, onCloseSession,
+  session, students, search, filter, classFilter, onSearch, onFilter, onClassFilter, onMarkAbsent, onMarkPresentManually, onCloseSession,
 }: {
   session: AttendanceSession
   /**
@@ -41,7 +41,8 @@ export function RosterList({
   onSearch: (next: string) => void
   onFilter: (next: StatusFilter) => void
   onClassFilter: (next: Speciality | 'all') => void
-  onMark: (student: Student, status: 'present' | 'absent') => void
+  onMarkAbsent: (student: Student) => void
+  onMarkPresentManually: (student: Student) => void
   onCloseSession: () => void
 }) {
   const open = session.state === 'open'
@@ -61,7 +62,7 @@ export function RosterList({
       <div className="roster-head">
         <div>
           <h3>Student roster</h3>
-          <p>{open ? 'Tap a student to mark them present or absent.' : 'This session is closed — its attendance is final.'}</p>
+          <p>{open ? 'Scan badges for check-in. If a student has no badge, search their name and use Manual present.' : 'This session is closed — its attendance is final.'}</p>
         </div>
         <div className="roster-tools">
           <div className="search-field">
@@ -122,24 +123,17 @@ export function RosterList({
                   </small>}
                 </span>
                 <span className="roster-row-action">
-                  {open
-                    ? <span className="roster-mark">
-                      {/* aria-pressed, not colour alone, carries the state. Pressing
-                          an already-pressed button re-marks rather than clearing:
-                          "unchecked" is the state a session starts in, not one the
-                          teacher sets. */}
-                      <button
-                        aria-pressed={status === 'present'}
-                        aria-label={`Mark ${name} present`}
-                        onClick={() => onMark(student, 'present')}
-                      ><Check size={17} /></button>
-                      <button
-                        aria-pressed={status === 'absent'}
-                        aria-label={`Mark ${name} absent`}
-                        onClick={() => onMark(student, 'absent')}
-                      ><X size={17} /></button>
-                    </span>
-                    : <span className="locked-cell"><LockKeyhole size={15} /> Final</span>}
+                  {open && status !== 'present'
+                    ? <span className="roster-mark"><button
+                      aria-label={`Mark ${name} present manually`}
+                      title="Present without badge (manual)"
+                      onClick={() => onMarkPresentManually(student)}
+                    ><Check size={17} /><span>Manual</span></button><button
+                      aria-pressed={status === 'absent'}
+                      aria-label={`Mark ${name} absent`}
+                      onClick={() => onMarkAbsent(student)}
+                    ><X size={17} /></button></span>
+                    : <span className="locked-cell"><LockKeyhole size={15} /> {open ? 'Checked in' : 'Final'}</span>}
                 </span>
               </li>
             )

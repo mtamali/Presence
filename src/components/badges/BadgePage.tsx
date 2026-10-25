@@ -3,8 +3,7 @@ import { QrCode, ScanLine, Search, ShieldCheck } from 'lucide-react'
 import { QRCodeSVG } from 'qrcode.react'
 import type { Speciality, Student } from '../../roster'
 
-// Dormant. Reachable only when BADGES_ENABLED is true, and lazy-loaded so
-// qrcode.react stays out of the entry chunk.
+// Dormant gallery. Reachable only when BADGES_ENABLED is true.
 export default function BadgePage({ speciality, students: classStudents }: { speciality: Speciality; students: Student[] }) {
   const [query, setQuery] = useState('')
   useEffect(() => setQuery(''), [speciality])

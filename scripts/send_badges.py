@@ -50,8 +50,27 @@ DEFAULT_PLAN = ROOT / "generated" / "draft-plan.json"
 load_dotenv(ROOT / ".env")
 
 
+def send_badge_bytes(smtp_connection, sender: str, recipient: str, student: str,
+                     badge_png: bytes, filename: str, speciality: str) -> None:
+    """Send one student's PNG badge using the configured SMTP connection."""
+    msg = MIMEMultipart()
+    msg["From"] = sender
+    msg["To"] = recipient
+    msg["Subject"] = f"Your Présence badge — {speciality}"
+    msg.attach(MIMEText(
+        f"Hello {student},\n\nPlease find your Présence student badge attached. "
+        "Keep it for classroom attendance.\n", "plain", "utf-8"))
+
+    part = MIMEBase("image", "png")
+    part.set_payload(badge_png)
+    encoders.encode_base64(part)
+    part.add_header("Content-Disposition", "attachment", filename=filename)
+    msg.attach(part)
+    smtp_connection.send_message(msg)
+
+
 def send_email(smtp_connection, sender: str, draft: dict) -> None:
-    """Build and send an email with the badge PNG attached."""
+    """Build and send a legacy draft with its badge PNG attached."""
     msg = MIMEMultipart()
     msg["From"] = sender
     msg["To"] = draft["to"]

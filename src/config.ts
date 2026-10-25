@@ -1,3 +1,3 @@
-// Badges are retired. The code is retained but unreachable; both badge
-// components are React.lazy so neither QR library enters the entry chunk.
+// The separate printable badge gallery remains hidden. Badge delivery in
+// Students Management and camera scanning in Attendance are always available.
 export const BADGES_ENABLED = false
