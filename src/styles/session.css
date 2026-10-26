@@ -29,6 +29,9 @@
   pointer-events: none;
 }
 .session-summary-main, .session-summary-actions { position: relative; z-index: 1; }
+.attendance-heading { align-items: center; gap: 12px; flex-wrap: wrap; }
+.attendance-report-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.attendance-report-actions .button { white-space: nowrap; }
 .session-summary h3 { font-size: 18px; letter-spacing: -.04em; margin: 10px 0 10px; }
 
 .session-state { display: inline-flex; align-items: center; gap: 6px; border-radius: 5px; font-size: 10px; font-weight: 700; padding: 5px 8px; }

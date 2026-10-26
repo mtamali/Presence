@@ -17,7 +17,7 @@ Open the local address printed by Vite. Run `npm run build` to create a producti
 2. Select a speciality and create a course session.
 3. During an open session, tap **Scan student QR** on the teacher phone. Each student shows the emailed badge image on their phone; scan it, verify the name, and confirm presence. If a student attends without a badge, search their name in the roster and use **Manual present** after confirming their identity. The app records whether check-in was by QR or manual and will not check the same student in twice. You can mark absence in the roster, or leave students unchecked until closing the session.
 4. Close the session to mark unchecked students absent. Reopen it if corrections are needed; automatically marked absences return to unchecked.
-5. Export the session as a CSV file for records.
+5. Use **Export CSV** for the selected session's student list. Use **Export Attendance** on the attendance page for a CSV of every session, split by speciality and CR/TD/TP type, with student, present, absent, and unchecked counts. In open sessions, unchecked students are not counted absent.
 
 Attendance and roster edits are stored in this browser on this device. They are not synced or protected by an account. Use **Analytics → Back up everything** to save a copy; clearing browser storage or uninstalling the app removes data that has not been backed up.
 

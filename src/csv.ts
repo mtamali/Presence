@@ -1,5 +1,6 @@
 import { getRoster, specialities as allSpecialities, type Student } from './roster'
 import type { AttendanceSession } from './sessions'
+import { saveTextFile } from './native/share'
 
 function csvCell(value: string) {
   // Leading =, +, @ or - make spreadsheets treat the cell as a formula.
@@ -68,10 +69,5 @@ export function csvFilename(session: AttendanceSession) {
 }
 
 export function exportSessionCsv(session: AttendanceSession) {
-  const url = URL.createObjectURL(new Blob([buildSessionCsv(session)], { type: 'text/csv;charset=utf-8' }))
-  const link = document.createElement('a')
-  link.href = url
-  link.download = csvFilename(session)
-  link.click()
-  URL.revokeObjectURL(url)
+  return saveTextFile(csvFilename(session), buildSessionCsv(session), 'text/csv;charset=utf-8')
 }

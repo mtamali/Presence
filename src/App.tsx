@@ -241,6 +241,8 @@ function App() {
       {page === 'attendance' && <AttendancePage
         speciality={speciality}
         sessions={classSessions}
+        allSessions={sessions}
+        allStudents={allStudents}
         selectedId={selectedId}
         rosterVersion={rosterVersion}
         onSelect={setSelectedId}

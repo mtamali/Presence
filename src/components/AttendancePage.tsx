@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
-import { Plus, QrCode, ScanLine } from 'lucide-react'
+import { Download, Plus, QrCode, ScanLine } from 'lucide-react'
 import { RosterList, type StatusFilter } from './RosterList'
 import { SessionHistory } from './SessionHistory'
 import { SessionSummary } from './SessionSummary'
@@ -7,6 +7,8 @@ import { StatGrid } from './StatGrid'
 import { getRoster, specialities, type Speciality, type Student } from '../roster'
 import { closeSession, markManualPresent, markScannedPresent, reopenSession, sessionStats, type AttendanceSession } from '../sessions'
 import { exportSessionCsv } from '../csv'
+import { attendanceReportFilename, buildAttendanceReportCsv } from '../attendanceReport'
+import { saveTextFile } from '../native/share'
 
 const ScannerModal = lazy(() => import('./badges/ScannerModal'))
 
@@ -17,11 +19,14 @@ const ScannerModal = lazy(() => import('./badges/ScannerModal'))
  * a change of session or class and nothing outside this screen reads it.
  */
 export function AttendancePage({
-  speciality, sessions, selectedId, rosterVersion, onSelect, onCreateOpen, onImportOpen, onReplace, onToast,
+  speciality, sessions, allSessions, allStudents, selectedId, rosterVersion, onSelect, onCreateOpen, onImportOpen, onReplace, onToast,
 }: {
   speciality: Speciality
   /** This class's sessions, newest first. */
   sessions: AttendanceSession[]
+  /** The summary export covers every speciality, including shared sessions. */
+  allSessions: AttendanceSession[]
+  allStudents: Student[]
   selectedId: string | null
   /**
    * Bumped by App whenever the roster in localStorage changes. It is the only
@@ -40,6 +45,7 @@ export function AttendancePage({
   const [filter, setFilter] = useState<StatusFilter>('all')
   const [classFilter, setClassFilter] = useState<Speciality | 'all'>('all')
   const [scanOpen, setScanOpen] = useState(false)
+  const [exporting, setExporting] = useState(false)
 
   const selectedSession = sessions.find(item => item.id === selectedId) || null
   const latestSession = useRef<AttendanceSession | null>(selectedSession)
@@ -112,10 +118,41 @@ export function AttendancePage({
     onToast('Session reopened. Automatically marked absences are now unchecked.')
   }
 
+  async function exportAttendance() {
+    if (!allSessions.length || exporting) return
+    setExporting(true)
+    try {
+      const filename = attendanceReportFilename()
+      const result = await saveTextFile(filename, buildAttendanceReportCsv(allSessions, allStudents), 'text/csv;charset=utf-8')
+      if (!result.ok) onToast(result.error)
+      else if (result.outcome !== 'cancelled') onToast(result.outcome === 'shared' ? 'Attendance report shared.' : `Saved ${filename}.`)
+    } catch {
+      onToast('The attendance report could not be exported.')
+    } finally {
+      setExporting(false)
+    }
+  }
+
+  async function exportSelectedSession() {
+    if (!selectedSession) return
+    try {
+      const result = await exportSessionCsv(selectedSession)
+      if (!result.ok) onToast(result.error)
+      else if (result.outcome !== 'cancelled') onToast(result.outcome === 'shared' ? 'Session attendance shared.' : 'Session CSV saved.')
+    } catch {
+      onToast('The session CSV could not be exported.')
+    }
+  }
+
   return <>
-    <div className="section-heading">
+    <div className="section-heading attendance-heading">
       <div><p className="eyebrow small">{speciality} · {specialityName}</p><h2>Course sessions</h2></div>
-      <span className="section-meta">{sessions.length} {sessions.length === 1 ? 'session' : 'sessions'}</span>
+      <div className="attendance-report-actions">
+        <span className="section-meta">{sessions.length} {sessions.length === 1 ? 'session' : 'sessions'} in {speciality}</span>
+        <button className="button button-light" type="button" onClick={exportAttendance} disabled={!allSessions.length || exporting} title="Export all sessions by speciality and type">
+          <Download size={17} /> Export Attendance
+        </button>
+      </div>
     </div>
 
     {selectedSession ? <>
@@ -123,7 +160,7 @@ export function AttendancePage({
         session={selectedSession}
         onScan={() => setScanOpen(true)}
         onReopen={handleReopen}
-        onExport={() => exportSessionCsv(selectedSession)}
+        onExport={exportSelectedSession}
       />
       <StatGrid stats={counts!} />
       <RosterList
